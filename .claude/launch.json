@@ -1,0 +1,11 @@
+﻿{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "importica",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "C:\\Users\\User\\Desktop\\Мої проєкти з Клод!\\importica"],
+      "port": 3000
+    }
+  ]
+}
