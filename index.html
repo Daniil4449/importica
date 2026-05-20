@@ -898,6 +898,7 @@ function submitLead(){
   if(!cargo){document.getElementById('lm-cargo').classList.add('field-error');missing.push('тип вантажу');}
   if(!country){document.getElementById('lm-country').classList.add('field-error');missing.push('країну відправки');}
   if(!phone){document.getElementById('lm-phone').classList.add('field-error');missing.push('номер телефону');}
+  if(!contact){document.getElementById('lm-contact').classList.add('field-error');missing.push('Telegram або Email');}
   if(missing.length){showToast('Не заповнено: '+missing.join(', '));return;}
   if(cargo.includes('Товари')&&!_files.length){document.getElementById('lm-file-area').classList.add('field-error-area');showToast('Для товарів необхідно додати файл інвойсу або скрін');return;}
   const btn=document.querySelector('.btn-submit');
