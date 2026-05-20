@@ -27,24 +27,49 @@
 
 ## Технічна інфраструктура
 
-| Сервіс | Деталі |
-|--------|--------|
-| Сайт | Один файл: index.html (весь HTML+CSS+JS вбудований) |
-| Хостинг | GitHub Pages — github.com/Daniil4449/importica |
-| Deploy | git push main → GitHub Actions → автодеплой |
-| Домен | importica.com.ua (реєстратор: Imena.ua) |
-| DNS | Cloudflare |
-| SSL | Автоматично (GitHub Pages + Cloudflare) |
-| Email | Google Workspace → info@importica.com.ua |
-| Telegram бот | @importica_bot (токен є у власника) |
-| Make.com | Автопересилання → група "Importica - Заявки" + автовідповідь клієнту |
-| Search Console | Підключено, sitemap відправлено 17.05.2026 |
-| Analytics | GA4 — НЕ ПІДКЛЮЧЕНО (placeholder є в коді) |
-| EmailJS | ✅ ПІДКЛЮЧЕНО (20.05.2026) — форма митних ризиків відправляє email |
+| Сервіс | Статус | Деталі |
+|--------|--------|--------|
+| Хостинг | ✅ | GitHub Pages — github.com/Daniil4449/importica |
+| Домен | ✅ | importica.com.ua (Imena.ua) |
+| DNS | ✅ | Cloudflare |
+| SSL | ✅ | Автоматично (GitHub Pages + Cloudflare) |
+| Deploy | ✅ | git push main → GitHub Actions → автодеплой |
+| Email | ✅ | Google Workspace → info@importica.com.ua |
+| Telegram бот | ✅ | @importica_bot |
+| Make.com | ✅ | Автопересилання в групу "Importica - Заявки" + автовідповідь |
+| Search Console | ✅ | Підключено, sitemap відправлено 17.05.2026 |
+| EmailJS | ✅ | Підключено 20.05.2026 — форма митних ризиків відправляє email |
+| Google Analytics GA4 | ❌ | Не підключено (placeholder є в коді) |
 
 ---
 
-## Структура сайту (секції index.html)
+## EmailJS — деталі (форма митних ризиків)
+
+**Статус: ✅ повністю підключено та працює.**
+
+- Public Key: `sM063G4NxBe08BwhI`
+- Service ID: `service_4jt8l1t`
+- Template ID: `template_uapgy9w`
+- Відправляє на: info@importica.com.ua
+
+**Змінні шаблону:** `{{cargo_type}}`, `{{from_country}}`, `{{invoice_value}}`, `{{client_contact}}`, `{{details}}`
+
+**Логіка:** успіх → email + success UI на сторінці | помилка → fallback відкриває Telegram
+
+---
+
+## Google Analytics GA4
+
+**Статус: ❌ не підключено.**
+
+В `<head>` index.html є закоментований блок. Щоб підключити:
+1. analytics.google.com → New Property → Web → importica.com.ua
+2. Скопіювати Measurement ID (формат: G-XXXXXXXXXX)
+3. Розкоментувати блок в `<head>` і замінити G-XXXXXXXXXX → commit → push
+
+---
+
+## Структура сайту (секції index.html по порядку)
 
 ```
 1.  Topbar        — телефон | email | telegram
@@ -53,12 +78,12 @@
 4.  SEO-блок      — текст для пошукових систем
 5.  Services      — 6 карток послуг
 6.  Invoice       — оплата інвойсів за кордоном
-7.  Customs       — оцінка митних ризиків + ФОРМА (EmailJS)
+7.  Customs       — оцінка митних ризиків + форма (EmailJS ✅)
 8.  How it works  — 4 кроки доставки авто
 9.  Cities        — Київ, Львів, Харків, Дніпро, Одеса + ваше місто
 10. Pricing       — ринок $1000-1100 vs Importica $850
 11. Calculator    — JS калькулятор вартості доставки
-12. FAQ           — 6 питань і відповідей
+12. FAQ           — 6 питань і відповідей (accordion)
 13. CTA Final     — заклик до дії
 14. Contacts      — всі контакти
 15. Footer        — лого | посилання | © 2026
@@ -67,76 +92,57 @@
 
 ---
 
-## Дизайн-система
+## Дизайн-система (не змінювати!)
 
 ```
-Фон основний:   #0d0d0d
-Акцент:         #e8ff00  (жовто-зелений)
+Фон:            #0d0d0d
+Акцент:         #e8ff00 (жовто-зелений)
 Текст:          #f5f5f0
 Другорядний:    #555 / #666 / #777
 Карточки:       фон #1a1a1a | бордер #2a2a2a
-Telegram:       #229ED9
-Шрифт заголовки: Unbounded (900)
+Telegram синій: #229ED9
+Шрифт заголовки: Unbounded (вага 900)
 Шрифт текст:    DM Sans
 ```
 
-**Правила при редагуванні:**
-- Зберігати всі SEO meta-теги (title, description, OG, Schema.org)
+**Правила:**
+- Зберігати всі SEO meta-теги при будь-яких змінах
 - Нові секції — в тому ж стилі (темний фон, жовтий акцент)
+- Клас `fade-up` на секції → анімація появи при скролі
 - Після змін: `git add index.html` → `git commit` → `git push origin main`
 
 ---
 
-## EmailJS — форма митних ризиків
-
-**Статус:** SDK підключено, ключі відсутні (форма не відправляє email).
-
-**Що потрібно зробити:**
-1. emailjs.com → Sign Up → Add Email Service → Gmail → info@importica.com.ua
-2. Email Templates → Create New Template
-3. Вставити в шаблон змінні: `{{cargo_type}}`, `{{from_country}}`, `{{invoice_value}}`, `{{client_contact}}`, `{{details}}`
-4. Замінити в index.html:
-   - `YOUR_PUBLIC_KEY` → emailjs.com → Account → API Keys
-   - `YOUR_SERVICE_ID` → Email Services → Service ID
-   - `YOUR_TEMPLATE_ID` → Email Templates → Template ID
-
-**Логіка форми:** успіх → email + success UI | помилка → fallback Telegram
-
----
-
-## Google Analytics GA4
-
-**Статус:** закоментований placeholder в `<head>` index.html.
-
-**Що потрібно:**
-1. analytics.google.com → New Property → Web → importica.com.ua
-2. Скопіювати Measurement ID (G-XXXXXXXXXX)
-3. Розкоментувати блок в `<head>` і замінити G-XXXXXXXXXX
-
----
-
-## Що заховано в git (можна повернути)
+## Що заховано в git (прибрано, легко повернути)
 
 | Елемент | Коли повертати |
 |---------|----------------|
-| Секція "Про нас" | Є реальні цифри: 5 років досвіду, 100+ доставок |
-| Секція відгуків (3 картки) | Є реальні відгуки від клієнтів |
-| Instagram кнопки | Створено Instagram акаунт |
+| Секція "Про нас" | Коли є реальні цифри (5 років, 100+ доставок, кількість країн) |
+| Секція відгуків | Коли є реальні відгуки від клієнтів |
+| Instagram кнопки | Коли створено Instagram акаунт |
 
 ---
 
-## Пріоритети — що робити далі
+## Пріоритети — що далі
 
-### Термінові:
-- [x] **EmailJS** — ЗРОБЛЕНО 20.05.2026
-- [ ] **GA4** — зареєструватись і вставити Measurement ID
-- [ ] **Постійний телефон** — замінити +380502313652 у topbar, contacts, footer
+### Зроблено ✅
+- [x] Сайт запущено на importica.com.ua
+- [x] SEO (meta, OG, Schema.org, sitemap, robots.txt)
+- [x] GitHub Pages + Cloudflare DNS + HTTPS
+- [x] Google Search Console
+- [x] Telegram бот + Make.com автовідповідь
+- [x] SVG логотип
+- [x] EmailJS — форма митних ризиків відправляє email
 
-### Середні:
-- [ ] **Секція "Про нас"** — повернути з реальними даними (5 років, 100+)
-- [ ] **Відгуки** — повернути коли будуть реальні від клієнтів
+### Термінові ⚡
+- [ ] **GA4** — зареєструватись на analytics.google.com, вставити Measurement ID
+- [ ] **Постійний телефон** — замінити +380502313652 у 3 місцях (topbar, contacts, footer)
 
-### Майбутнє:
+### Середні 📋
+- [ ] **Секція "Про нас"** — повернути з реальними даними (5 років, 100+ доставок)
+- [ ] **Відгуки** — повернути коли є реальні від клієнтів
+
+### Майбутнє 🔮
 - [ ] Instagram акаунт → підключити до сайту
 - [ ] og:image (1200×630px) для соцмереж
 - [ ] English версія сайту
@@ -147,15 +153,15 @@ Telegram:       #229ED9
 
 ```
 importica/
-├── index.html       ← ЄДИНИЙ файл сайту
+├── index.html       ← ЄДИНИЙ файл сайту (HTML + CSS + JS всередині)
 ├── robots.txt       ← SEO
 ├── sitemap.xml      ← SEO
-├── CNAME            ← GitHub Pages домен
-├── CLAUDE.md        ← Контекст для Claude Code CLI
-├── context.md       ← Цей файл (Project Knowledge)
-├── README.md        ← Документація
+├── CNAME            ← GitHub Pages: importica.com.ua
+├── CLAUDE.md        ← Контекст для Claude Code CLI (авто-читається)
+├── context.md       ← Цей файл (для Claude.ai Project Knowledge)
+├── README.md        ← Документація проєкту
 ├── DEPLOY-GUIDE.md  ← Гайд по деплою
-└── .github/workflows/deploy.yml  ← CI/CD
+└── .github/workflows/deploy.yml  ← GitHub Actions CI/CD
 ```
 
 ---
@@ -166,12 +172,12 @@ importica/
 Шукати `+38 050 231 36 52` — є в 3 місцях: topbar, contacts-strip, footer.
 
 **Додати нову секцію:**
-Вставити між існуючими секціями в index.html. Клас `fade-up` дає анімацію появи при скролі.
+Вставити між існуючими секціями в index.html з класом `fade-up`.
 
 **Оновити сайт:**
 ```bash
 git add index.html
 git commit -m "опис змін"
 git push origin main
+# Деплой автоматичний ~1-2 хвилини
 ```
-Деплой автоматичний через GitHub Actions (~1-2 хвилини).
