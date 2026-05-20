@@ -25,7 +25,6 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -759,8 +758,6 @@ footer .logo{font-size:0.95rem;}
 </div>
 
 <script>
-// EmailJS — замінити YOUR_PUBLIC_KEY: emailjs.com → Account → Public Key
-emailjs.init('sM063G4NxBe08BwhI');
 function toggleNav(){document.getElementById('nav').classList.toggle('open');}
 document.querySelectorAll('#nav a').forEach(a=>{a.addEventListener('click',()=>document.getElementById('nav').classList.remove('open'));});
 
@@ -803,9 +800,18 @@ function submitLead(){
   const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${contact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}\n📱 Контакт: ${contact}${notes?'\n📝 Деталі: '+notes:''}`;
   const params={cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_contact:contact,details:notes||'—',name:'Запит з сайту importica.com.ua',email:contact};
-  emailjs.send('service_4jt8l1t','template_uapgy9w',params,{publicKey:'sM063G4NxBe08BwhI'})
-    .then(()=>{document.getElementById('leadFormWrap').innerHTML=successHtml;},
-          (err)=>{console.error('EmailJS error:',JSON.stringify(err));document.getElementById('leadFormWrap').innerHTML=successHtml;window.open('https://t.me/importica_bot?text='+encodeURIComponent(tgMsg),'_blank');});
+  fetch('https://api.emailjs.com/api/v1.0/email/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({service_id:'service_4jt8l1t',template_id:'template_uapgy9w',user_id:'sM063G4NxBe08BwhI',template_params:params})
+  }).then(r=>{
+    if(r.ok){document.getElementById('leadFormWrap').innerHTML=successHtml;}
+    else{return r.text().then(t=>{throw new Error(t);});}
+  }).catch(err=>{
+    console.error('EmailJS error:',err);
+    document.getElementById('leadFormWrap').innerHTML=successHtml;
+    window.open('https://t.me/importica_bot?text='+encodeURIComponent(tgMsg),'_blank');
+  });
 }
 </script>
 </body>
