@@ -191,6 +191,22 @@ textarea{resize:vertical;min-height:72px;}
 .btn-submit{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:#229ED9;color:#fff;border:none;padding:14px;border-radius:11px;font-family:'Unbounded',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.3s;margin-top:0.4rem;}
 .btn-submit:hover{background:#1a8abf;transform:translateY(-2px);box-shadow:0 10px 28px rgba(34,158,217,0.3);}
 .lead-disclaimer{text-align:center;font-size:0.7rem;color:#555;margin-top:0.7rem;line-height:1.5;}
+.file-upload-area{border:2px dashed #2a2a2a;border-radius:9px;padding:1.1rem;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;background:#1a1a1a;user-select:none;}
+.file-upload-area:hover,.file-upload-area.drag-over{border-color:#e8ff00;background:rgba(232,255,0,0.03);}
+.file-upload-area input[type="file"]{display:none;}
+.file-upload-icon{font-size:1.5rem;margin-bottom:0.35rem;}
+.file-upload-label{font-size:0.8rem;color:#666;line-height:1.5;}
+.file-upload-label strong{color:#e8ff00;}
+.file-selected{font-size:0.78rem;color:#b8d900;margin-top:0.45rem;display:none;}
+.file-error{font-size:0.75rem;color:#ff6b1a;margin-top:0.3rem;display:none;}
+.or-divider{display:flex;align-items:center;gap:0.6rem;margin:0.65rem 0;}
+.or-divider span{font-size:0.7rem;color:#444;}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:#2a2a2a;}
+.field-error{border-color:#e74c3c!important;}
+.field-error-area{outline:2px solid #e74c3c;border-radius:9px;}
+.toast{position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(12px);background:#c0392b;color:#fff;padding:0.75rem 1.4rem 0.75rem 1.1rem;border-radius:10px;font-size:0.84rem;font-weight:500;z-index:10000;opacity:0;transition:opacity 0.22s,transform 0.22s;pointer-events:none;max-width:92vw;text-align:left;box-shadow:0 8px 28px rgba(0,0,0,0.45);display:flex;align-items:flex-start;gap:0.6rem;line-height:1.45;}
+.toast::before{content:'⚠';font-size:1rem;flex-shrink:0;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* HOW IT WORKS */
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;position:relative;}
@@ -550,7 +566,7 @@ footer .logo{font-size:0.95rem;}
 <!-- CUSTOMS RISK -->
 <section id="customs" style="padding-top:0;padding-bottom:72px;">
   <div class="customs-wrap fade-up">
-    <div class="customs-badge">🎁 Безкоштовно для нових клієнтів</div>
+    <div class="customs-badge" id="customs-badge">🎁 Безкоштовно для нових клієнтів</div>
     <div class="customs-grid">
       <div>
         <h2>Знайте митні витрати<br>до відправки вантажу</h2>
@@ -570,8 +586,8 @@ footer .logo{font-size:0.95rem;}
         </div>
       </div>
       <div class="lead-form" id="leadFormWrap">
-        <div class="lead-form-title">Безкоштовна оцінка митних ризиків</div>
-        <div class="lead-form-sub">Заповніть форму — і протягом 24 годин отримаєте детальний розрахунок у Telegram або на пошту.</div>
+        <div class="lead-form-title" id="lm-form-title">Безкоштовна оцінка митних ризиків</div>
+        <div class="lead-form-sub" id="lm-form-sub">Заповніть форму — і протягом 24 годин отримаєте детальний розрахунок у Telegram або на пошту.</div>
         <div class="form-group"><label>Що везете?</label>
           <select id="lm-cargo" onchange="toggleInvoiceField(this.value)">
             <option value="">Оберіть тип вантажу</option>
@@ -593,8 +609,20 @@ footer .logo{font-size:0.95rem;}
           </select>
         </div>
         <div class="form-group"><label>Вартість за інвойсом (USD)</label><input type="number" id="lm-value" placeholder="Наприклад: 15000"></div>
-        <div class="form-group" id="lm-invoice-wrap" style="display:none;"><label>Посилання на інвойс <span style="color:#e8ff00;">*</span></label><input type="text" id="lm-invoice" placeholder="Google Drive або Dropbox посилання на PDF інвойсу"><div style="font-size:0.78rem;color:#555;margin-top:4px;">Завантажте інвойс на Google Drive → Поділитись → Скопіюйте посилання</div></div>
-        <div class="form-group"><label>Ваш Telegram або Email</label><input type="text" id="lm-contact" placeholder="@username або email@example.com"></div>
+        <div class="form-group" id="lm-invoice-wrap" style="display:none;"><label>Інвойс або скрін <span style="color:#e8ff00;">*</span></label>
+          <div class="file-upload-area" id="lm-file-area" onclick="document.getElementById('lm-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleFileDrop(event)">
+            <input type="file" id="lm-file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(this)">
+            <div class="file-upload-icon">📎</div>
+            <div class="file-upload-label">Натисніть або перетягніть файл<br><strong>PDF, JPG, PNG</strong> — до 5 МБ</div>
+            <div class="file-selected" id="lm-file-selected"></div>
+            <div class="file-error" id="lm-file-error"></div>
+          </div>
+          <div class="or-divider"><span>або</span></div>
+          <input type="text" id="lm-invoice" placeholder="Посилання на Google Drive / Dropbox">
+          <div style="font-size:0.75rem;color:#555;margin-top:4px;">Якщо немає файлу — вставте посилання</div>
+        </div>
+        <div class="form-group"><label>Номер телефону</label><input type="tel" id="lm-phone" placeholder="+380 XX XXX XX XX" onblur="checkContactInput(this.value)"></div>
+        <div class="form-group"><label>Telegram або Email</label><input type="text" id="lm-contact" placeholder="@username або email@example.com" onblur="checkContactInput(this.value)"></div>
         <div class="form-group"><label>Деталі (необов'язково)</label><textarea id="lm-notes" placeholder="Марка, модель, рік, VIN, посилання на товар..."></textarea></div>
         <button class="btn-submit" onclick="submitLead()">🛃 Отримати безкоштовну оцінку →</button>
         <div class="lead-disclaimer">Без спаму. Дані використовуються лише для підготовки оцінки.</div>
@@ -758,8 +786,48 @@ footer .logo{font-size:0.95rem;}
   <a href="mailto:info@importica.com.ua" class="btn-secondary" style="flex:1;">✉️ Email</a>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+let _toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),4500);
+}
 function toggleInvoiceField(val){document.getElementById('lm-invoice-wrap').style.display=val.includes('Товари')?'block':'none';}
+function normalizeContact(s){
+  if(!s)return'';
+  s=s.trim().toLowerCase();
+  const dig=s.replace(/\D/g,'');
+  if(dig.length>=9)return dig.slice(-9);
+  return s.replace(/^@/,'');
+}
+function getStoredContacts(){
+  try{return JSON.parse(localStorage.getItem('importica_contacts')||'[]');}catch(e){return[];}
+}
+function isKnownContact(val){
+  if(!val)return false;
+  const n=normalizeContact(val);
+  return n.length>3&&getStoredContacts().some(c=>normalizeContact(c)===n);
+}
+function applyReturningUI(){
+  const badge=document.getElementById('customs-badge');
+  const title=document.getElementById('lm-form-title');
+  const sub=document.getElementById('lm-form-sub');
+  if(badge&&badge.dataset.returning!=='1'){badge.dataset.returning='1';badge.style.background='rgba(255,255,255,0.05)';badge.style.borderColor='rgba(255,255,255,0.12)';badge.style.color='#888';badge.textContent='💼 Повторний запит — $25–40';}
+  if(title)title.textContent='Оцінка митних ризиків';
+  if(sub)sub.innerHTML='Ви вже отримували безкоштовну оцінку. Повторний розрахунок коштує <strong style="color:#f5f5f0;">$25–40</strong> — оплата після отримання результату.';
+}
+function checkContactInput(val){if(isKnownContact(val))applyReturningUI();}
+function checkReturningClient(){if(localStorage.getItem('importica_customs_done'))applyReturningUI();}
+document.addEventListener('DOMContentLoaded',function(){
+  checkReturningClient();
+  document.querySelectorAll('#leadFormWrap select,#leadFormWrap input,#leadFormWrap textarea').forEach(el=>{
+    el.addEventListener('focus',()=>{el.classList.remove('field-error');document.getElementById('lm-file-area').classList.remove('field-error-area');});
+  });
+});
 function toggleNav(){document.getElementById('nav').classList.toggle('open');}
 document.querySelectorAll('#nav a').forEach(a=>{a.addEventListener('click',()=>document.getElementById('nav').classList.remove('open'));});
 
@@ -790,25 +858,69 @@ function calcPrice(){
   document.getElementById('breakdown').style.display='flex';
 }
 
+function handleFileSelect(input){
+  const file=input.files[0];
+  const errEl=document.getElementById('lm-file-error');
+  const selEl=document.getElementById('lm-file-selected');
+  if(!file)return;
+  if(file.size>5*1024*1024){errEl.textContent='Файл завеликий — максимум 5 МБ';errEl.style.display='block';selEl.style.display='none';input.value='';return;}
+  errEl.style.display='none';
+  selEl.textContent='✓ '+file.name;selEl.style.display='block';
+}
+function handleFileDrop(e){
+  e.preventDefault();
+  document.getElementById('lm-file-area').classList.remove('drag-over');
+  const files=e.dataTransfer.files;
+  if(files.length){
+    const dt=new DataTransfer();dt.items.add(files[0]);
+    const inp=document.getElementById('lm-file');inp.files=dt.files;handleFileSelect(inp);
+  }
+}
 function submitLead(){
   const cargo=document.getElementById('lm-cargo').value;
   const country=document.getElementById('lm-country').value;
   const val=document.getElementById('lm-value').value;
-  const contact=document.getElementById('lm-contact').value;
+  const phone=document.getElementById('lm-phone').value.trim();
+  const contact=document.getElementById('lm-contact').value.trim();
   const notes=document.getElementById('lm-notes').value;
   const invoice=document.getElementById('lm-invoice').value;
-  if(!cargo||!country||!contact){alert("Будь ласка, заповніть: тип вантажу, країну та контакт.");return;}
-  if(cargo.includes('Товари')&&!invoice){alert("Для товарів необхідно додати посилання на інвойс.");return;}
+  const fileInput=document.getElementById('lm-file');
+  const file=fileInput&&fileInput.files[0];
+  document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
+  document.querySelectorAll('.field-error-area').forEach(el=>el.classList.remove('field-error-area'));
+  const missing=[];
+  if(!cargo){document.getElementById('lm-cargo').classList.add('field-error');missing.push('тип вантажу');}
+  if(!country){document.getElementById('lm-country').classList.add('field-error');missing.push('країну відправки');}
+  if(!phone&&!contact){document.getElementById('lm-phone').classList.add('field-error');document.getElementById('lm-contact').classList.add('field-error');missing.push('телефон або Telegram/Email');}
+  if(missing.length){showToast('Не заповнено: '+missing.join(', '));return;}
+  if(cargo.includes('Товари')&&!invoice&&!file){document.getElementById('lm-invoice').classList.add('field-error');document.getElementById('lm-file-area').classList.add('field-error-area');showToast('Для товарів необхідно додати файл або посилання на інвойс');return;}
   const btn=document.querySelector('.btn-submit');
   btn.textContent='⏳ Відправляємо...';btn.disabled=true;
-  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${contact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
-  const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}\n📱 Контакт: ${contact}${notes?'\n📝 Деталі: '+notes:''}`;
+  const displayContact=phone||contact;
+  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
+  const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
+  const fd=new FormData();
+  fd.append('access_key','482dec28-c0fe-4a55-9b57-a465e4c9b0a1');
+  fd.append('subject','Запит на оцінку митних ризиків — importica.com.ua');
+  fd.append('from_name','Importica сайт');
+  fd.append('cargo_type',cargo);fd.append('from_country',country);
+  fd.append('invoice_value',val?'$'+val:'не вказано');
+  fd.append('invoice_link',invoice||'—');
+  fd.append('client_phone',phone||'—');
+  fd.append('client_contact',contact||'—');fd.append('details',notes||'—');
+  if(file)fd.append('attachment',file);
   fetch('https://api.web3forms.com/submit',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({access_key:'482dec28-c0fe-4a55-9b57-a465e4c9b0a1',subject:'Запит на оцінку митних ризиків — importica.com.ua',from_name:'Importica сайт',cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',invoice_link:invoice||'—',client_contact:contact,details:notes||'—'})
+    headers:{'Accept':'application/json'},
+    body:fd
   }).then(r=>r.json()).then(data=>{
-    if(data.success){document.getElementById('leadFormWrap').innerHTML=successHtml;}
+    if(data.success){
+      const stored=getStoredContacts();
+      [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
+      localStorage.setItem('importica_contacts',JSON.stringify(stored));
+      localStorage.setItem('importica_customs_done','1');
+      document.getElementById('leadFormWrap').innerHTML=successHtml;
+    }
     else{throw new Error(data.message||'error');}
   }).catch(()=>{
     document.getElementById('leadFormWrap').innerHTML=successHtml;
