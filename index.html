@@ -904,13 +904,24 @@ function submitLead(){
   const btn=document.querySelector('.btn-submit');
   btn.textContent='⏳ Відправляємо...';btn.disabled=true;
   const displayContact=phone||contact;
-  const filesNote=_files.length?`<div style="background:rgba(232,255,0,0.06);border:1px solid rgba(232,255,0,0.2);border-radius:9px;padding:0.75rem 1rem;margin-bottom:1.2rem;font-size:0.8rem;color:#aaa;line-height:1.55;">📎 Надішліть ваші файли (${fileNames}) у Telegram — менеджер вже буде в контексті вашого запиту.</div>`:'';
-  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.2rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div>${filesNote}<a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
+  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
-  const fileNames=_files.map(f=>f.name).join(', ')||'—';
-  const baseFields={access_key:'482dec28-c0fe-4a55-9b57-a465e4c9b0a1',subject:'Запит на оцінку митних ризиків — importica.com.ua',from_name:'Importica сайт',cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_phone:phone||'—',client_contact:contact||'—',attached_files:fileNames,details:notes||'—'};
-  const fetchOpts={method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(baseFields)};
-  fetch('https://api.web3forms.com/submit',fetchOpts).then(r=>r.json()).then(data=>{
+  const fd=new FormData();
+  fd.append('_subject','Запит на оцінку митних ризиків — importica.com.ua');
+  fd.append('_template','table');
+  fd.append('_captcha','false');
+  fd.append('Тип вантажу',cargo);
+  fd.append('Країна відправки',country);
+  fd.append('Вартість',val?'$'+val:'не вказано');
+  fd.append('Телефон',phone||'—');
+  fd.append('Контакт (Telegram/Email)',contact||'—');
+  fd.append('Деталі',notes||'—');
+  _files.forEach(f=>fd.append('attachment',f));
+  fetch('https://formsubmit.co/ajax/danylo@importica.com.ua',{
+    method:'POST',
+    headers:{'Accept':'application/json'},
+    body:fd
+  }).then(r=>r.json()).then(data=>{
     if(data.success){
       const stored=getStoredContacts();
       [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
