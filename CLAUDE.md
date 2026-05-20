@@ -23,7 +23,8 @@ importica/
 ├── robots.txt          ← SEO
 ├── sitemap.xml         ← SEO (відправлено в Google Search Console)
 ├── CNAME               ← GitHub Pages домен: importica.com.ua
-├── CLAUDE.md           ← Цей файл (контекст для Claude)
+├── CLAUDE.md           ← Контекст для Claude Code CLI
+├── context.md          ← Контекст для Claude.ai Project Knowledge
 ├── README.md           ← Документація проєкту
 ├── DEPLOY-GUIDE.md     ← Гайд по деплою
 └── .github/
@@ -146,7 +147,7 @@ Telegram:  #229ED9
 ## Пріоритети (наступні кроки по черзі)
 
 - [ ] **EmailJS** — зареєструватись, підключити Gmail, створити шаблон, вставити 3 ключі
-- [ ] **Видалити main.html** — ✅ ЗРОБЛЕНО 19.05.2026
+- [x] **Видалити main.html** — ЗРОБЛЕНО 19.05.2026
 - [ ] **GA4** — зареєструватись, вставити Measurement ID
 - [ ] **Постійний телефон** — замінити тимчасовий +380502313652 (3 місця в index.html)
 - [ ] **Секція "Про нас"** — повернути з реальними даними
