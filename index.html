@@ -760,7 +760,7 @@ footer .logo{font-size:0.95rem;}
 
 <script>
 // EmailJS — замінити YOUR_PUBLIC_KEY: emailjs.com → Account → Public Key
-emailjs.init('YOUR_PUBLIC_KEY');
+emailjs.init('sM063G4NxBe08BwhI');
 function toggleNav(){document.getElementById('nav').classList.toggle('open');}
 document.querySelectorAll('#nav a').forEach(a=>{a.addEventListener('click',()=>document.getElementById('nav').classList.remove('open'));});
 
@@ -804,7 +804,7 @@ function submitLead(){
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}\n📱 Контакт: ${contact}${notes?'\n📝 Деталі: '+notes:''}`;
   const params={cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_contact:contact,details:notes||'—'};
   // emailjs.com → Email Services → Service ID; Templates → Template ID
-  emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',params)
+  emailjs.send('service_4jt8l1t','template_uapgy9w',params)
     .then(()=>{document.getElementById('leadFormWrap').innerHTML=successHtml;},
           ()=>{document.getElementById('leadFormWrap').innerHTML=successHtml;window.open('https://t.me/importica_bot?text='+encodeURIComponent(tgMsg),'_blank');});
 }
