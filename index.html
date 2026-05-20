@@ -803,7 +803,7 @@ function submitLead(){
   fetch('https://api.emailjs.com/api/v1.0/email/send',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({service_id:'service_4jt8l1t',template_id:'template_uapgy9w',user_id:'sM063G4NxBe08BwhI',template_params:params})
+    body:JSON.stringify({lib_version:'4.4.1',service_id:'service_4jt8l1t',template_id:'template_uapgy9w',user_id:'sM063G4NxBe08BwhI',template_params:params})
   }).then(r=>{
     if(r.ok){document.getElementById('leadFormWrap').innerHTML=successHtml;}
     else{return r.text().then(t=>{throw new Error(t);});}
