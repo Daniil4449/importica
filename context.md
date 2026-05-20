@@ -38,23 +38,26 @@
 | Telegram бот | ✅ | @importica_bot |
 | Make.com | ✅ | Автопересилання в групу "Importica - Заявки" + автовідповідь |
 | Search Console | ✅ | Підключено, sitemap відправлено 17.05.2026 |
-| EmailJS | ✅ | Підключено 20.05.2026 — форма митних ризиків відправляє email |
+| Web3Forms | ✅ | Підключено 20.05.2026 — форма митних ризиків відправляє email (замінив EmailJS) |
 | Google Analytics GA4 | ❌ | Не підключено (placeholder є в коді) |
 
 ---
 
-## EmailJS — деталі (форма митних ризиків)
+## Web3Forms — деталі (форма митних ризиків)
 
-**Статус: ✅ повністю підключено та працює.**
+**Статус: ✅ повністю підключено та працює (20.05.2026)**
 
-- Public Key: `sM063G4NxBe08BwhI`
-- Service ID: `service_4jt8l1t`
-- Template ID: `template_uapgy9w`
-- Відправляє на: info@importica.com.ua
+- Акаунт: danylo@importica.com.ua на web3forms.com
+- Access Key: `482dec28-c0fe-4a55-9b57-a465e4c9b0a1`
+- Endpoint: `https://api.web3forms.com/submit` (простий fetch POST, без SDK)
+- Відправляє на: danylo@importica.com.ua
+- Ліміт: 250 відправок/місяць (безкоштовно)
 
-**Змінні шаблону:** `{{cargo_type}}`, `{{from_country}}`, `{{invoice_value}}`, `{{client_contact}}`, `{{details}}`
+**Поля форми:** cargo_type, from_country, invoice_value, client_contact, details
 
-**Логіка:** успіх → email + success UI на сторінці | помилка → fallback відкриває Telegram
+**Логіка:** успіх → success UI на сторінці | помилка → fallback відкриває Telegram
+
+**Примітка:** EmailJS не використовується — несумісний з Edge Tracking Prevention.
 
 ---
 

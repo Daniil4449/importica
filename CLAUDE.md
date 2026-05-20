@@ -64,7 +64,7 @@ importica/
 4. **SEO-блок** — текстовий блок для пошукових систем
 5. **Services** — 6 карток послуг
 6. **Invoice** — оплата інвойсів: проблема → кроки → валюти → гарантії
-7. **Customs** — оцінка митних ризиків + форма заявки (EmailJS)
+7. **Customs** — оцінка митних ризиків + форма заявки (Web3Forms ✅)
 8. **How it works** — 4 кроки доставки авто
 9. **Cities** — міста доставки з цінами (Київ, Львів, Харків, Дніпро, Одеса)
 10. **Pricing** — порівняння ринок ($1000-1100) vs Importica ($850)
@@ -77,32 +77,20 @@ importica/
 
 ---
 
-## EmailJS — форма митних ризиків (Customs секція)
+## Web3Forms — форма митних ризиків (Customs секція)
 
-SDK підключено: `cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js`
+**Статус: ✅ працює (підключено 20.05.2026)**
 
-**Форма збирає:** тип вантажу, країна відправки, вартість за інвойсом, контакт (telegram/email), деталі.
-**При успіху:** email на info@importica.com.ua + success-повідомлення клієнту.
+- Сервіс: web3forms.com (акаунт: danylo@importica.com.ua)
+- Access Key: `482dec28-c0fe-4a55-9b57-a465e4c9b0a1`
+- Endpoint: `https://api.web3forms.com/submit` (POST, без SDK)
+- Ліміт: 250 відправок/місяць (безкоштовно)
+
+**Форма збирає:** тип вантажу, країна відправки, вартість за інвойсом, контакт, деталі.
+**При успіху:** email на danylo@importica.com.ua + success-повідомлення на сторінці.
 **При помилці:** fallback — відкриває Telegram з готовим текстом.
 
-**Що замінити в index.html (3 placeholder значення):**
-```js
-emailjs.init('YOUR_PUBLIC_KEY');     // emailjs.com → Account → Public Key
-emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', params)
-```
-
-**Змінні шаблону EmailJS:**
-- `{{cargo_type}}` — тип вантажу
-- `{{from_country}}` — країна відправки
-- `{{invoice_value}}` — вартість за інвойсом
-- `{{client_contact}}` — контакт клієнта
-- `{{details}}` — деталі
-
-**Кроки налаштування:**
-1. emailjs.com → Sign Up → Add New Service → Gmail → підключити info@importica.com.ua
-2. Email Templates → Create → вставити змінні → зберегти → скопіювати Template ID
-3. Account → API Keys → скопіювати Public Key
-4. Вставити всі 3 значення в index.html → commit → push
+**Примітка:** EmailJS не використовується — видалено через несумісність з Edge Tracking Prevention.
 
 ---
 
@@ -146,7 +134,7 @@ Telegram:  #229ED9
 
 ## Пріоритети (наступні кроки по черзі)
 
-- [x] **EmailJS** — ЗРОБЛЕНО 20.05.2026 (Public Key: sM063G4NxBe08BwhI, Service: service_4jt8l1t, Template: template_uapgy9w)
+- [x] **Web3Forms** — ЗРОБЛЕНО 20.05.2026 (замінив EmailJS, Access Key: 482dec28-c0fe-4a55-9b57-a465e4c9b0a1)
 - [x] **Видалити main.html** — ЗРОБЛЕНО 19.05.2026
 - [ ] **GA4** — зареєструватись, вставити Measurement ID
 - [ ] **Постійний телефон** — замінити тимчасовий +380502313652 (3 місця в index.html)
