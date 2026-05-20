@@ -802,8 +802,7 @@ function submitLead(){
   btn.textContent='⏳ Відправляємо...';btn.disabled=true;
   const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${contact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}\n📱 Контакт: ${contact}${notes?'\n📝 Деталі: '+notes:''}`;
-  const params={cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_contact:contact,details:notes||'—'};
-  // emailjs.com → Email Services → Service ID; Templates → Template ID
+  const params={cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_contact:contact,details:notes||'—',name:'Запит з сайту importica.com.ua',email:contact};
   emailjs.send('service_4jt8l1t','template_uapgy9w',params)
     .then(()=>{document.getElementById('leadFormWrap').innerHTML=successHtml;},
           ()=>{document.getElementById('leadFormWrap').innerHTML=successHtml;window.open('https://t.me/importica_bot?text='+encodeURIComponent(tgMsg),'_blank');});
