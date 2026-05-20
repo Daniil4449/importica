@@ -897,7 +897,8 @@ function submitLead(){
   const missing=[];
   if(!cargo){document.getElementById('lm-cargo').classList.add('field-error');missing.push('тип вантажу');}
   if(!country){document.getElementById('lm-country').classList.add('field-error');missing.push('країну відправки');}
-  if(!phone&&!contact){document.getElementById('lm-phone').classList.add('field-error');document.getElementById('lm-contact').classList.add('field-error');missing.push('телефон або Telegram/Email');}
+  if(!phone){document.getElementById('lm-phone').classList.add('field-error');missing.push('номер телефону');}
+  if(!contact){document.getElementById('lm-contact').classList.add('field-error');missing.push('Telegram або Email');}
   if(missing.length){showToast('Не заповнено: '+missing.join(', '));return;}
   if(cargo.includes('Товари')&&!_files.length){document.getElementById('lm-file-area').classList.add('field-error-area');showToast('Для товарів необхідно додати файл інвойсу або скрін');return;}
   const btn=document.querySelector('.btn-submit');
@@ -905,32 +906,27 @@ function submitLead(){
   const displayContact=phone||contact;
   const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
-  const fd=new FormData();
-  fd.append('access_key','482dec28-c0fe-4a55-9b57-a465e4c9b0a1');
-  fd.append('subject','Запит на оцінку митних ризиків — importica.com.ua');
-  fd.append('from_name','Importica сайт');
-  fd.append('cargo_type',cargo);fd.append('from_country',country);
-  fd.append('invoice_value',val?'$'+val:'не вказано');
-
-  fd.append('client_phone',phone||'—');
-  fd.append('client_contact',contact||'—');fd.append('details',notes||'—');
-  _files.forEach(f=>fd.append('attachment',f));
-  fetch('https://api.web3forms.com/submit',{
-    method:'POST',
-    headers:{'Accept':'application/json'},
-    body:fd
-  }).then(r=>r.json()).then(data=>{
+  const baseFields={access_key:'482dec28-c0fe-4a55-9b57-a465e4c9b0a1',subject:'Запит на оцінку митних ризиків — importica.com.ua',from_name:'Importica сайт',cargo_type:cargo,from_country:country,invoice_value:val?'$'+val:'не вказано',client_phone:phone||'—',client_contact:contact||'—',details:notes||'—'};
+  let fetchOpts;
+  if(_files.length){
+    const fd=new FormData();
+    Object.entries(baseFields).forEach(([k,v])=>fd.append(k,v));
+    _files.forEach(f=>fd.append('attachment',f));
+    fetchOpts={method:'POST',headers:{'Accept':'application/json'},body:fd};
+  } else {
+    fetchOpts={method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(baseFields)};
+  }
+  fetch('https://api.web3forms.com/submit',fetchOpts).then(r=>r.json()).then(data=>{
     if(data.success){
       const stored=getStoredContacts();
       [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
       localStorage.setItem('importica_contacts',JSON.stringify(stored));
       localStorage.setItem('importica_customs_done','1');
       document.getElementById('leadFormWrap').innerHTML=successHtml;
-    }
-    else{throw new Error(data.message||'error');}
+    } else {throw new Error(data.message||'error');}
   }).catch(()=>{
-    document.getElementById('leadFormWrap').innerHTML=successHtml;
-    window.open('https://t.me/importica_bot?text='+encodeURIComponent(tgMsg),'_blank');
+    btn.textContent='🛃 Отримати безкоштовну оцінку →';btn.disabled=false;
+    showToast('Помилка відправки. Спробуйте ще раз або напишіть у Telegram');
   });
 }
 </script>
