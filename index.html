@@ -907,18 +907,20 @@ function submitLead(){
   const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
   const fd=new FormData();
-  fd.append('_subject','Запит на оцінку митних ризиків — importica.com.ua');
+  const isEmail=contact&&contact.includes('@')&&contact.includes('.');
+  const subjectContact=isEmail?` | відповісти: ${contact}`:(contact?` | Telegram: ${contact}`:'');
+  fd.append('_subject',`Запит на митну оцінку${subjectContact}`);
   fd.append('_template','table');
   fd.append('_captcha','false');
-  const isEmail=contact&&contact.includes('@')&&contact.includes('.');
   if(isEmail){
     fd.append('_replyto',contact);
     fd.append('_autoresponse','Дякуємо за звернення до Importica! Ваш запит отримано. Наш менеджер розгляне його та зв\'яжеться з вами найближчим часом. З повагою, команда Importica | importica.com.ua');
   }
+  if(isEmail)fd.append('📧 Відповісти клієнту',contact);
+  fd.append('📞 Телефон',phone||'—');
   fd.append('Вантаж',cargo);
   fd.append('Країна',country);
   fd.append('Вартість',val?'$'+val:'не вказано');
-  fd.append('Телефон',phone||'—');
   fd.append('Telegram або Email',contact||'—');
   fd.append('Деталі',notes||'—');
   _files.forEach(f=>fd.append('attachment',f));
