@@ -914,15 +914,18 @@ function submitLead(){
   const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
   const fd=new FormData();
   const isEmail=contact&&contact.includes('@')&&contact.includes('.');
-  const subjectContact=isEmail?` | відповісти: ${contact}`:(contact?` | Telegram: ${contact}`:'');
-  fd.append('_subject',`Запит на митну оцінку${subjectContact}`);
+  const isReturning=!!localStorage.getItem('importica_customs_done');
+  const statusText=isReturning?'🔄 ПОВТОРНИЙ — виставити рахунок $25–40':'🆕 НОВИЙ — безкоштовна оцінка';
+  const subjectContact=isEmail?` | ${contact}`:(contact?` | Telegram: ${contact}`:'');
+  fd.append('_subject',(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+`Запит на митну оцінку${subjectContact}`);
   fd.append('_template','table');
   fd.append('_captcha','false');
   if(isEmail){
     fd.append('_replyto',contact);
     fd.append('_autoresponse','Дякуємо за звернення до Importica! Ваш запит отримано. Наш менеджер розгляне його та зв\'яжеться з вами найближчим часом. З повагою, команда Importica | importica.com.ua');
   }
-  if(isEmail)fd.append('📧 Відповісти клієнту',contact);
+  fd.append('🔔 Статус клієнта',statusText);
+  if(isEmail)fd.append('📧 Email клієнта',contact);
   fd.append('📞 Телефон',phone||'—');
   fd.append('Вантаж',cargo);
   fd.append('Країна',country);
