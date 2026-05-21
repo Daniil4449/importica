@@ -513,7 +513,7 @@ footer .logo{font-size:0.95rem;}
       <a href="#invoice" class="service-link">Детальніше →</a>
     </div>
     <div class="service-card featured">
-      <div class="service-icon">🛃</div>
+      <div class="service-icon">⚖️</div>
       <h3>Оцінка митних ризиків</h3>
       <p>Розрахунок митної вартості, ризиків КМВ, мита та ПДВ — до відправки вантажу. Перший розрахунок безкоштовно.</p>
       <a href="#customs" class="service-link">Отримати безкоштовно →</a>
@@ -641,7 +641,7 @@ footer .logo{font-size:0.95rem;}
         <div class="form-group"><label>Номер телефону</label><input type="tel" id="lm-phone" placeholder="+380 XX XXX XX XX" onblur="checkContactInput(this.value)"></div>
         <div class="form-group"><label>Telegram або Email</label><input type="text" id="lm-contact" placeholder="@username або email@example.com" onblur="checkContactInput(this.value)"></div>
         <div class="form-group"><label>Деталі (необов'язково)</label><textarea id="lm-notes" placeholder="Марка, модель, рік, VIN, посилання на товар..."></textarea></div>
-        <button type="button" class="btn-submit" onclick="submitLead()">🛃 Отримати безкоштовну оцінку →</button>
+        <button type="button" class="btn-submit" onclick="submitLead()">⚖️ Отримати безкоштовну оцінку →</button>
         <div class="lead-disclaimer">Без спаму. Дані використовуються лише для підготовки оцінки.</div>
         </form>
       </div>
@@ -954,7 +954,7 @@ function submitLead(){
   const frame=document.getElementById('formsubmit-frame');
   const submitTimeout=setTimeout(function(){
     frame.onload=null;
-    btn.textContent=isReturning?'🛃 Отримати оцінку ($25–40) →':'🛃 Отримати безкоштовну оцінку →';
+    btn.textContent=isReturning?'⚖️ Отримати оцінку ($25–40) →':'⚖️ Отримати безкоштовну оцінку →';
     btn.disabled=false;
     showToast('Помилка відправки. Спробуйте ще раз або напишіть у Telegram');
   },15000);
