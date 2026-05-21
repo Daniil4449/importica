@@ -593,6 +593,20 @@ footer .logo{font-size:0.95rem;}
         </div>
       </div>
       <div class="lead-form" id="leadFormWrap">
+        <form id="lead-form-el" action="https://formsubmit.co/56ca8e43c291e01a9138572f3c12ca69" method="POST" enctype="multipart/form-data" target="formsubmit-frame">
+        <input type="hidden" name="_subject" id="hid-subject">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_replyto" id="hid-replyto">
+        <input type="hidden" name="_autoresponse" id="hid-autoresponse">
+        <input type="hidden" name="Статус клієнта" id="hid-status">
+        <input type="hidden" name="Email клієнта" id="hid-email-client">
+        <input type="hidden" name="Телефон" id="hid-phone-hid">
+        <input type="hidden" name="Вантаж" id="hid-cargo">
+        <input type="hidden" name="Країна" id="hid-country">
+        <input type="hidden" name="Вартість" id="hid-val">
+        <input type="hidden" name="Контакт" id="hid-contact">
+        <input type="hidden" name="Деталі" id="hid-notes">
         <div class="lead-form-title" id="lm-form-title">Безкоштовна оцінка митних ризиків</div>
         <div class="lead-form-sub" id="lm-form-sub">Заповніть форму — і протягом 24 годин отримаєте детальний розрахунок у Telegram або на пошту.</div>
         <div class="form-group"><label>Що везете?</label>
@@ -618,7 +632,7 @@ footer .logo{font-size:0.95rem;}
         <div class="form-group"><label>Вартість за інвойсом</label><div class="value-currency-wrap"><input type="number" id="lm-value" placeholder="Наприклад: 15000"><select id="lm-currency"><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="UAH">₴ UAH</option></select></div></div>
         <div class="form-group" id="lm-invoice-wrap" style="display:none;"><label>Інвойс або скрін <span style="color:#e8ff00;">*</span></label>
           <div class="file-upload-area" id="lm-file-area" onclick="document.getElementById('lm-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleFileDrop(event)">
-            <input type="file" id="lm-file" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFileSelect(this)">
+            <input type="file" id="lm-file" name="attachment" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFileSelect(this)">
             <div class="file-upload-icon">📎</div>
             <div class="file-upload-label">Натисніть або перетягніть файли<br><strong>PDF, JPG, PNG</strong> — до 10 МБ кожен</div>
             <div class="file-error" id="lm-file-error"></div>
@@ -628,8 +642,9 @@ footer .logo{font-size:0.95rem;}
         <div class="form-group"><label>Номер телефону</label><input type="tel" id="lm-phone" placeholder="+380 XX XXX XX XX" onblur="checkContactInput(this.value)"></div>
         <div class="form-group"><label>Telegram або Email</label><input type="text" id="lm-contact" placeholder="@username або email@example.com" onblur="checkContactInput(this.value)"></div>
         <div class="form-group"><label>Деталі (необов'язково)</label><textarea id="lm-notes" placeholder="Марка, модель, рік, VIN, посилання на товар..."></textarea></div>
-        <button class="btn-submit" onclick="submitLead()">🛃 Отримати безкоштовну оцінку →</button>
+        <button type="button" class="btn-submit" onclick="submitLead()">🛃 Отримати безкоштовну оцінку →</button>
         <div class="lead-disclaimer">Без спаму. Дані використовуються лише для підготовки оцінки.</div>
+        </form>
       </div>
     </div>
   </div>
@@ -910,46 +925,46 @@ function submitLead(){
   const btn=document.querySelector('.btn-submit');
   btn.textContent='⏳ Відправляємо...';btn.disabled=true;
   const displayContact=phone||contact;
-  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Протягом 24 годин ви отримаєте детальний розрахунок на <strong style="color:#f5f5f0;">${displayContact}</strong>.</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
-  const tgMsg=`Запит на оцінку митних ризиків:\n🚛 Вантаж: ${cargo}\n🌍 Країна: ${country}\n💰 Вартість: ${val?'$'+val:'не вказано'}${phone?'\n📞 Телефон: '+phone:''}\n📱 Контакт: ${contact||'—'}${notes?'\n📝 Деталі: '+notes:''}`;
-  const fd=new FormData();
+  const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Ваш запит прийнято, найближчим часом ми зконтактуємо з вами та надамо всю необхідну інформацію відповідно запиту!</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const isEmail=contact&&contact.includes('@')&&contact.includes('.');
   const isReturning=!!localStorage.getItem('importica_customs_done');
-  const statusText=isReturning?'🔄 ПОВТОРНИЙ — виставити рахунок $25–40':'🆕 НОВИЙ — безкоштовна оцінка';
+  const statusText=isReturning?'ПОВТОРНИЙ — виставити рахунок $25–40':'НОВИЙ — безкоштовна оцінка';
   const subjectContact=isEmail?` | ${contact}`:(contact?` | Telegram: ${contact}`:'');
-  fd.append('_subject',(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+`Запит на митну оцінку${subjectContact}`);
-  fd.append('_template','table');
-  fd.append('_captcha','false');
-  if(isEmail){
-    fd.append('_replyto',contact);
-    fd.append('_autoresponse','Дякуємо за звернення до Importica! Ваш запит отримано. Наш менеджер розгляне його та зв\'яжеться з вами найближчим часом. З повагою, команда Importica | importica.com.ua');
+  document.getElementById('hid-subject').value=(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+'Запит на митну оцінку'+subjectContact;
+  document.getElementById('hid-replyto').value=isEmail?contact:'';
+  document.getElementById('hid-autoresponse').value=isEmail?'Дякуємо за звернення до Importica! Ваш запит отримано. Менеджер зв\'яжеться найближчим часом. | importica.com.ua':'';
+  document.getElementById('hid-status').value=statusText;
+  document.getElementById('hid-email-client').value=isEmail?contact:'—';
+  document.getElementById('hid-phone-hid').value=phone||'—';
+  document.getElementById('hid-cargo').value=cargo;
+  document.getElementById('hid-country').value=country;
+  document.getElementById('hid-val').value=val?val+' '+currency:'не вказано';
+  document.getElementById('hid-contact').value=contact||'—';
+  document.getElementById('hid-notes').value=notes||'—';
+  if(_files.length&&window.DataTransfer){
+    const dt=new DataTransfer();
+    _files.forEach(f=>dt.items.add(f));
+    document.getElementById('lm-file').files=dt.files;
   }
-  fd.append('🔔 Статус клієнта',statusText);
-  if(isEmail)fd.append('📧 Email клієнта',contact);
-  fd.append('📞 Телефон',phone||'—');
-  fd.append('Вантаж',cargo);
-  fd.append('Країна',country);
-  fd.append('Вартість',val?val+' '+currency:'не вказано');
-  fd.append('Telegram або Email',contact||'—');
-  fd.append('Деталі',notes||'—');
-  _files.forEach(f=>fd.append('attachment',f));
-  fetch('https://formsubmit.co/ajax/56ca8e43c291e01a9138572f3c12ca69',{
-    method:'POST',
-    headers:{'Accept':'application/json'},
-    body:fd
-  }).then(r=>r.json()).then(data=>{
-    if(data.success){
-      const stored=getStoredContacts();
-      [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
-      localStorage.setItem('importica_contacts',JSON.stringify(stored));
-      localStorage.setItem('importica_customs_done','1');
-      document.getElementById('leadFormWrap').innerHTML=successHtml;
-    } else {throw new Error(data.message||'error');}
-  }).catch(()=>{
-    btn.textContent=localStorage.getItem('importica_customs_done')?'🛃 Отримати оцінку ($25–40) →':'🛃 Отримати безкоштовну оцінку →';btn.disabled=false;
+  const frame=document.getElementById('formsubmit-frame');
+  const submitTimeout=setTimeout(function(){
+    frame.onload=null;
+    btn.textContent=isReturning?'🛃 Отримати оцінку ($25–40) →':'🛃 Отримати безкоштовну оцінку →';
+    btn.disabled=false;
     showToast('Помилка відправки. Спробуйте ще раз або напишіть у Telegram');
-  });
+  },15000);
+  frame.onload=function(){
+    clearTimeout(submitTimeout);
+    frame.onload=null;
+    const stored=getStoredContacts();
+    [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
+    localStorage.setItem('importica_contacts',JSON.stringify(stored));
+    localStorage.setItem('importica_customs_done','1');
+    document.getElementById('leadFormWrap').innerHTML=successHtml;
+  };
+  document.getElementById('lead-form-el').submit();
 }
 </script>
+<iframe id="formsubmit-frame" name="formsubmit-frame" style="display:none;" title="form-submit"></iframe>
 </body>
 </html>
