@@ -1,6 +1,6 @@
 # Importica — Project Knowledge
 
-**Оновлено:** 20.05.2026 (вечір)
+**Оновлено:** 21.05.2026
 
 ---
 
@@ -9,7 +9,7 @@
 **Importica** — міжнародна логістична компанія.
 - Сайт: https://importica.com.ua
 - Засновник: Danylo Denisyuk
-- Email: danylo@importica.com.ua / info@importica.com.ua
+- Email: info@importica.com.ua (alias для danylo@importica.com.ua)
 - Telegram: @importica_bot
 - Телефон: +38 050 231 36 52 (**ТИМЧАСОВИЙ** — буде замінений)
 - Досвід: 5 років у логістиці
@@ -34,30 +34,77 @@
 | DNS | ✅ | Cloudflare |
 | SSL | ✅ | Автоматично (GitHub Pages + Cloudflare) |
 | Deploy | ✅ | git push main → GitHub Actions → автодеплой |
-| Email | ✅ | Google Workspace → info@importica.com.ua |
+| Email (Workspace) | ✅ | Google Workspace, info@ як alias для danylo@ |
+| Gmail Send-as | ✅ | info@importica.com.ua — за умовчанням як відправник |
 | Telegram бот | ✅ | @importica_bot |
 | Make.com | ✅ | Автопересилання в групу "Importica - Заявки" + автовідповідь |
 | Search Console | ✅ | Підключено, sitemap відправлено 17.05.2026 |
-| Web3Forms | ✅ | Підключено 20.05.2026 — форма митних ризиків відправляє email (замінив EmailJS) |
+| Formsubmit | ✅ | Підключено 21.05.2026 — форма митних ризиків (замінив Web3Forms) |
 | Google Analytics GA4 | ❌ | Не підключено (placeholder є в коді) |
 
 ---
 
-## Web3Forms — деталі (форма митних ризиків)
+## Formsubmit — деталі (форма митних ризиків)
 
-**Статус: ✅ повністю підключено та працює (20.05.2026)**
+**Статус: ✅ повністю працює end-to-end (21.05.2026)**
 
-- Акаунт: danylo@importica.com.ua на web3forms.com
-- Access Key: `482dec28-c0fe-4a55-9b57-a465e4c9b0a1`
-- Endpoint: `https://api.web3forms.com/submit` (простий fetch POST, без SDK)
-- Відправляє на: danylo@importica.com.ua
-- Ліміт: 250 відправок/місяць (безкоштовно)
+- Сервіс: formsubmit.co (безкоштовний, без реєстрації)
+- Endpoint: `https://formsubmit.co/56ca8e43c291e01a9138572f3c12ca69` (активований hash для danylo@importica.com.ua)
+- Метод: реальний HTML form POST у **прихованому iframe** (не fetch/AJAX, бо AJAX endpoint не підтримує файли)
+- Отримувач: danylo@importica.com.ua → бачить email як від `submissions@formsubmit.co`
 
-**Поля форми:** cargo_type, from_country, invoice_value, client_contact, details
+**Чому iframe, а не fetch:**
+- AJAX endpoint Formsubmit (`/ajax/`) **не підтримує** вкладені файли
+- Звичайний form POST перезавантажує сторінку — треба iframe як target
 
-**Логіка:** успіх → success UI на сторінці | помилка → fallback відкриває Telegram
+**Як це працює технічно:**
+```html
+<form target="formsubmit-frame" enctype="multipart/form-data">...</form>
+<iframe name="formsubmit-frame" style="display:none;"></iframe>
+```
+JS встановлює `frame.onload` → коли iframe завантажує відповідь Formsubmit, показуємо success UI. Таймаут 15 сек на випадок мережевої помилки.
 
-**Примітка:** EmailJS не використовується — несумісний з Edge Tracking Prevention.
+**Підтримка кількох файлів:**
+Formsubmit обробляє лише ОДИН `name="attachment"`. Для кожного додаткового файлу динамічно створюються hidden inputs `attachment2`, `attachment3` тощо через DataTransfer API.
+
+**Поля форми:**
+- `_subject` — динамічний (`[НОВИЙ]` або `[ПОВТОРНИЙ]` + контакт)
+- `_template=table` — гарне табличне форматування в email
+- `_captcha=false` — без капчі
+- `_replyto` — email клієнта (натискання "Відповісти" в Gmail → автоматично адресує клієнту)
+- Дані: Статус_клієнта, Email_клієнта, Телефон, Вантаж, Країна, Вартість, Контакт, Деталі
+
+**Розпізнавання повторних клієнтів:**
+- `localStorage.importica_customs_done = '1'` встановлюється після першої успішної відправки
+- При наступному запиті заголовок змінюється на `[ПОВТОРНИЙ] — виставити рахунок $25-40`
+- Контакти нормалізуються (toLowerCase, без пробілів) перед порівнянням
+
+**Логіка:** успіх (iframe.onload) → success UI + збереження контакту в localStorage | помилка/таймаут → toast + fallback на Telegram
+
+**Примітки:**
+- EmailJS не використовується — несумісний з Edge Tracking Prevention
+- Web3Forms видалено 21.05.2026 — замінено на Formsubmit (стабільніший, з підтримкою файлів)
+
+---
+
+## Email: Gmail Send-as через Workspace alias
+
+**Статус: ✅ повністю налаштовано (21.05.2026)**
+
+**Як налаштовано:**
+1. У Google Workspace Admin: `info@importica.com.ua` створено як alias для облікового запису `danylo@importica.com.ua` (НЕ як Group — групи блокували Gmail verification).
+2. У Gmail → Settings → Облікові записи → "Надсилати пошту від імені" → додано `Importica <info@importica.com.ua>` як alias (Google auto-verified без verification email).
+3. `info@importica.com.ua` встановлено **за умовчанням**.
+4. Опція "Завжди відповідати з моєї адреси за умовчанням" увімкнена.
+
+**Що це дає на практиці:**
+- Клієнт заповнює форму → Formsubmit шле лист на `danylo@` з `Reply-To: <email клієнта>`
+- Danylo тисне "Відповісти" в Gmail → лист іде клієнту **від `info@importica.com.ua`**
+- У полі "Кому" автоматично — email клієнта
+- Перевірено end-to-end: лист доходить у Вхідні (не в спам)
+
+**Підводний камінь, який вирішено:**
+- Спочатку `info@importica.com.ua` був Google Group — він блокував зовнішні verification email від Gmail. Видалено і пересторено як справжній user alias. Тільки після цього Gmail auto-verified.
 
 ---
 
@@ -75,13 +122,13 @@
 ## Структура сайту (секції index.html по порядку)
 
 ```
-1.  Topbar        — телефон | email | telegram
-2.  Header        — SVG лого | навігація | кнопка Telegram
+1.  Topbar        — телефон | email | telegram (білий текст, жовтий hover)
+2.  Header        — SVG лого | навігація (жовті лінки) | кнопка Telegram
 3.  Hero          — доставка авто з Клайпеди від $850
 4.  SEO-блок      — текст для пошукових систем
 5.  Services      — 6 карток послуг
 6.  Invoice       — оплата інвойсів за кордоном
-7.  Customs       — оцінка митних ризиків + форма (Web3Forms ✅)
+7.  Customs       — оцінка митних ризиків + форма (Formsubmit + iframe ✅)
 8.  How it works  — 4 кроки доставки авто
 9.  Cities        — Київ, Львів, Харків, Дніпро, Одеса + ваше місто
 10. Pricing       — ринок $1000-1100 vs Importica $850
@@ -107,6 +154,10 @@ Telegram синій: #229ED9
 Шрифт заголовки: Unbounded (вага 900)
 Шрифт текст:    DM Sans
 ```
+
+**Стилі навігації (оновлено 21.05.2026):**
+- `nav a` — колір `#e8ff00` (брендовий жовтий), hover → `#f5f5f0`
+- `.topbar a` — колір `#f5f5f0` (білий), hover → `#e8ff00`
 
 **Правила:**
 - Зберігати всі SEO meta-теги при будь-яких змінах
@@ -135,8 +186,11 @@ Telegram синій: #229ED9
 - [x] Google Search Console
 - [x] Telegram бот + Make.com автовідповідь
 - [x] SVG логотип
-- [x] Web3Forms — форма митних ризиків відправляє email (замінив EmailJS 20.05.2026)
-- [x] Telegram бот протестовано — заявки приходять в групу "Importica - Заявки"
+- [x] **Formsubmit + iframe + multiple files** (21.05.2026) — повна заміна Web3Forms, підтримка вкладень
+- [x] **Gmail Send-as info@importica.com.ua** (21.05.2026) — Workspace alias, за умовчанням
+- [x] **Reply-To на email клієнта** (21.05.2026) — натискання "Відповісти" автоматично адресує клієнту
+- [x] **Стилізація nav + topbar** (21.05.2026) — жовті лінки nav, білий topbar з жовтим hover
+- [x] **Тест end-to-end** (21.05.2026) — форма → email з 4 файлами → відповідь від info@ → клієнт отримав у Вхідні
 - [x] Безпека сайту перевірена — все OK
 
 ### Термінові ⚡
@@ -186,3 +240,8 @@ git commit -m "опис змін"
 git push origin main
 # Деплой автоматичний ~1-2 хвилини
 ```
+
+**Якщо Formsubmit перестане працювати:**
+- Перевірити hash в action формы: `formsubmit.co/56ca8e43c291e01a9138572f3c12ca69`
+- Перевірити що iframe `formsubmit-frame` існує перед `</body>`
+- Перевірити Gmail спам — може потрапити туди при зміні sender

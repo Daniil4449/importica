@@ -3,7 +3,7 @@
 ## Що це за проєкт
 
 Сайт логістичної компанії **Importica** (importica.com.ua).
-Засновник: Danylo | Email: danylo@importica.com.ua
+Засновник: Danylo | Email: info@importica.com.ua (alias для danylo@importica.com.ua)
 Бізнес: 5 років досвіду, 100+ доставок до появи сайту.
 
 **Послуги:**
@@ -45,9 +45,11 @@ importica/
 | DNS | Cloudflare (неймсервери переведені з Imena) |
 | SSL | Автоматично через GitHub Pages + Cloudflare |
 | Email | Google Workspace → info@importica.com.ua (alias → danylo@importica.com.ua) |
+| Gmail Send-as | info@ як sender за умовчанням (підтверджено Workspace alias) |
 | Telegram бот | @importica_bot |
 | Make.com | Пересилає повідомлення бота в групу "Importica - Заявки" + автовідповідь |
 | Search Console | Підключено, sitemap відправлено 17.05.2026 |
+| Форма (Customs) | Formsubmit + hidden iframe (підключено 21.05.2026) |
 
 **Контакти на сайті:**
 - Телефон: `+38 050 231 36 52` — **ТИМЧАСОВИЙ**, замінити в 3 місцях: topbar, contacts-strip, footer
@@ -58,13 +60,13 @@ importica/
 
 ## Секції index.html (порядок на сторінці)
 
-1. **Topbar** — телефон, email, @importica (telegram)
-2. **Header** — SVG лого, nav, кнопка Telegram
+1. **Topbar** — телефон, email, @importica (білий текст #f5f5f0, hover жовтий #e8ff00)
+2. **Header** — SVG лого, nav (жовті лінки #e8ff00), кнопка Telegram
 3. **Hero** — доставка авто з Клайпеди від $850, маршрут, ціна, кнопки
 4. **SEO-блок** — текстовий блок для пошукових систем
 5. **Services** — 6 карток послуг
 6. **Invoice** — оплата інвойсів: проблема → кроки → валюти → гарантії
-7. **Customs** — оцінка митних ризиків + форма заявки (Web3Forms ✅)
+7. **Customs** — оцінка митних ризиків + форма (Formsubmit + iframe ✅)
 8. **How it works** — 4 кроки доставки авто
 9. **Cities** — міста доставки з цінами (Київ, Львів, Харків, Дніпро, Одеса)
 10. **Pricing** — порівняння ринок ($1000-1100) vs Importica ($850)
@@ -77,20 +79,53 @@ importica/
 
 ---
 
-## Web3Forms — форма митних ризиків (Customs секція)
+## Formsubmit — форма митних ризиків (Customs секція)
 
-**Статус: ✅ працює (підключено 20.05.2026)**
+**Статус: ✅ повністю працює end-to-end (21.05.2026)**
 
-- Сервіс: web3forms.com (акаунт: danylo@importica.com.ua)
-- Access Key: `482dec28-c0fe-4a55-9b57-a465e4c9b0a1`
-- Endpoint: `https://api.web3forms.com/submit` (POST, без SDK)
-- Ліміт: 250 відправок/місяць (безкоштовно)
+- Сервіс: formsubmit.co (безкоштовний, без реєстрації)
+- Endpoint: `https://formsubmit.co/56ca8e43c291e01a9138572f3c12ca69` (активований hash для danylo@importica.com.ua)
+- Метод: реальний HTML form POST у **прихованому iframe** (AJAX endpoint не підтримує файли)
+- Отримувач: danylo@importica.com.ua (sender: submissions@formsubmit.co)
 
-**Форма збирає:** тип вантажу, країна відправки, вартість за інвойсом, контакт, деталі.
-**При успіху:** email на danylo@importica.com.ua + success-повідомлення на сторінці.
-**При помилці:** fallback — відкриває Telegram з готовим текстом.
+**Технічна реалізація:**
+```html
+<form action="https://formsubmit.co/56ca8e43..." method="POST"
+      enctype="multipart/form-data" target="formsubmit-frame">...</form>
+<iframe name="formsubmit-frame" style="display:none;"></iframe>
+```
 
-**Примітка:** EmailJS не використовується — видалено через несумісність з Edge Tracking Prevention.
+**Кілька файлів:** Formsubmit обробляє лише один `name="attachment"`. Для додаткових файлів JS динамічно створює `attachment2`, `attachment3`... через DataTransfer API.
+
+**Hidden fields:**
+- `_subject` — `[НОВИЙ]` / `[ПОВТОРНИЙ]` + контакт
+- `_template=table` — табличне форматування email
+- `_captcha=false` — без капчі
+- `_replyto` — email клієнта (натискання "Відповісти" в Gmail → авто-адресує клієнту)
+- Дані: Статус_клієнта, Email_клієнта, Телефон, Вантаж, Країна, Вартість, Контакт, Деталі
+
+**Повторні клієнти:** `localStorage.importica_customs_done='1'` → заголовок `[ПОВТОРНИЙ] — виставити рахунок $25-40`.
+
+**При успіху** (iframe.onload): success UI на сторінці + збереження контактів у localStorage.
+**При помилці/таймауті 15с:** toast + fallback відкриває Telegram.
+
+**Примітки:**
+- EmailJS видалено — несумісний з Edge Tracking Prevention
+- Web3Forms замінено на Formsubmit 21.05.2026 (стабільніше, підтримка файлів)
+
+---
+
+## Gmail Send-as — info@importica.com.ua як sender
+
+**Статус: ✅ налаштовано (21.05.2026)**
+
+**Що зроблено:**
+1. У Workspace Admin: `info@importica.com.ua` створено як alias облікового запису `danylo@importica.com.ua` (НЕ Group — групи блокували Gmail verification).
+2. У Gmail Settings → Облікові записи → "Надсилати пошту від імені" → додано `Importica <info@importica.com.ua>` як alias (Google auto-verified без verification email).
+3. Встановлено `info@importica.com.ua` за умовчанням.
+4. Опція "Завжди відповідати з моєї адреси за умовчанням".
+
+**Підводний камінь (вирішено):** Спочатку info@ був Google Group → блокував зовнішні verification email. Видалено і пересторено як справжній user alias.
 
 ---
 
@@ -115,6 +150,10 @@ Telegram:  #229ED9
 Шрифти:    Unbounded (заголовки, 900) + DM Sans (текст)
 ```
 
+**Стилі навігації (оновлено 21.05.2026):**
+- `nav a` — `#e8ff00` (брендовий жовтий), hover → `#f5f5f0`
+- `.topbar a` — `#f5f5f0` (білий), hover → `#e8ff00`
+
 **Правила:**
 - Не змінювати існуючі стилі
 - Нові секції додавати органічно в той самий стиль
@@ -134,8 +173,13 @@ Telegram:  #229ED9
 
 ## Пріоритети (наступні кроки по черзі)
 
-- [x] **Web3Forms** — ЗРОБЛЕНО 20.05.2026 (замінив EmailJS, Access Key: 482dec28-c0fe-4a55-9b57-a465e4c9b0a1)
+- [x] **Web3Forms** — ЗРОБЛЕНО 20.05.2026
 - [x] **Видалити main.html** — ЗРОБЛЕНО 19.05.2026
+- [x] **Formsubmit + iframe + multiple files** — ЗРОБЛЕНО 21.05.2026 (заміна Web3Forms, підтримка файлів)
+- [x] **Gmail Send-as info@** — ЗРОБЛЕНО 21.05.2026 (Workspace alias, за умовчанням)
+- [x] **Reply-To на клієнта** — ЗРОБЛЕНО 21.05.2026
+- [x] **Стилі nav/topbar** — ЗРОБЛЕНО 21.05.2026 (жовті лінки, білий topbar)
+- [x] **Тест end-to-end** — ЗРОБЛЕНО 21.05.2026 (4 файли + відповідь дійшла клієнту)
 - [ ] **GA4** — зареєструватись, вставити Measurement ID
 - [ ] **Постійний телефон** — замінити тимчасовий +380502313652 (3 місця в index.html)
 - [ ] **Секція "Про нас"** — повернути з реальними даними
