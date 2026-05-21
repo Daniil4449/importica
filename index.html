@@ -617,7 +617,7 @@ footer .logo{font-size:0.95rem;}
           <div class="file-upload-area" id="lm-file-area" onclick="document.getElementById('lm-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleFileDrop(event)">
             <input type="file" id="lm-file" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFileSelect(this)">
             <div class="file-upload-icon">📎</div>
-            <div class="file-upload-label">Натисніть або перетягніть файли<br><strong>PDF, JPG, PNG</strong> — до 5 МБ кожен</div>
+            <div class="file-upload-label">Натисніть або перетягніть файли<br><strong>PDF, JPG, PNG</strong> — до 10 МБ кожен</div>
             <div class="file-error" id="lm-file-error"></div>
           </div>
           <div class="file-list" id="lm-file-list"></div>
@@ -872,10 +872,10 @@ function removeFile(e,i){
 function addFiles(fileList){
   let tooBig=[];
   Array.from(fileList).forEach(f=>{
-    if(f.size>5*1024*1024){tooBig.push(f.name);return;}
+    if(f.size>10*1024*1024){tooBig.push(f.name);return;}
     if(!_files.some(x=>x.name===f.name))_files.push(f);
   });
-  if(tooBig.length)showToast('Завеликий файл (макс. 5 МБ): '+tooBig.join(', '));
+  if(tooBig.length)showToast('Завеликий файл (макс. 10 МБ): '+tooBig.join(', '));
   document.getElementById('lm-file-error').style.display='none';
   renderFileList();
 }
