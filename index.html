@@ -597,6 +597,7 @@ footer .logo{font-size:0.95rem;}
         <input type="hidden" name="_subject" id="hid-subject">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_replyto" id="hid-replyto">
         <input type="hidden" name="Статус клієнта" id="hid-status">
         <input type="hidden" name="Email клієнта" id="hid-email-client">
         <input type="hidden" name="Телефон" id="hid-phone-hid">
@@ -929,6 +930,7 @@ function submitLead(){
   const statusText=isReturning?'ПОВТОРНИЙ — виставити рахунок $25–40':'НОВИЙ — безкоштовна оцінка';
   const subjectContact=isEmail?` | ${contact}`:(contact?` | Telegram: ${contact}`:'');
   document.getElementById('hid-subject').value=(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+'Запит на митну оцінку'+subjectContact;
+  document.getElementById('hid-replyto').value=isEmail?contact:'';
   document.getElementById('hid-status').value=statusText;
   document.getElementById('hid-email-client').value=isEmail?contact:'—';
   document.getElementById('hid-phone-hid').value=phone||'—';
