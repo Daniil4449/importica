@@ -939,10 +939,17 @@ function submitLead(){
   document.getElementById('hid-val').value=val?val+' '+currency:'не вказано';
   document.getElementById('hid-contact').value=contact||'—';
   document.getElementById('hid-notes').value=notes||'—';
+  document.querySelectorAll('.dyn-att').forEach(el=>el.remove());
   if(_files.length&&window.DataTransfer){
-    const dt=new DataTransfer();
-    _files.forEach(f=>dt.items.add(f));
-    document.getElementById('lm-file').files=dt.files;
+    const dt0=new DataTransfer();dt0.items.add(_files[0]);
+    document.getElementById('lm-file').files=dt0.files;
+    const form=document.getElementById('lead-form-el');
+    for(let i=1;i<_files.length;i++){
+      const inp=document.createElement('input');
+      inp.type='file';inp.name='attachment'+(i+1);inp.className='dyn-att';inp.style.display='none';
+      const dt=new DataTransfer();dt.items.add(_files[i]);inp.files=dt.files;
+      form.appendChild(inp);
+    }
   }
   const frame=document.getElementById('formsubmit-frame');
   const submitTimeout=setTimeout(function(){
