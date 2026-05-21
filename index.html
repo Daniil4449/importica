@@ -838,7 +838,7 @@ function applyReturningUI(){
   if(title)title.textContent='Оцінка митних ризиків';
   if(sub)sub.innerHTML='Ви вже отримували безкоштовну оцінку. Повторний розрахунок коштує <strong style="color:#f5f5f0;">$25–40</strong> — оплата після отримання результату.';
   const btn=document.querySelector('.btn-submit');
-  if(btn)btn.textContent='🛃 Отримати оцінку ($25–40) →';
+  if(btn)btn.textContent='⚖️ Отримати оцінку ($25–40) →';
 }
 function checkContactInput(val){if(isKnownContact(val))applyReturningUI();}
 function checkReturningClient(){if(localStorage.getItem('importica_customs_done'))applyReturningUI();}
