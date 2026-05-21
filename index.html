@@ -910,11 +910,11 @@ function submitLead(){
   fd.append('_subject','Запит на оцінку митних ризиків — importica.com.ua');
   fd.append('_template','table');
   fd.append('_captcha','false');
-  fd.append('Тип вантажу',cargo);
-  fd.append('Країна відправки',country);
+  fd.append('Вантаж',cargo);
+  fd.append('Країна',country);
   fd.append('Вартість',val?'$'+val:'не вказано');
   fd.append('Телефон',phone||'—');
-  fd.append('Контакт (Telegram/Email)',contact||'—');
+  fd.append('Telegram або Email',contact||'—');
   fd.append('Деталі',notes||'—');
   _files.forEach(f=>fd.append('attachment',f));
   fetch('https://formsubmit.co/ajax/56ca8e43c291e01a9138572f3c12ca69',{
