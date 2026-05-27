@@ -1045,6 +1045,8 @@ function submitLead(){
     localStorage.setItem('importica_contacts',JSON.stringify(stored));
     localStorage.setItem('importica_customs_done','1');
     document.getElementById('leadFormWrap').innerHTML=successHtml;
+    // Надсилаємо дані в Google Sheets (fire-and-forget)
+    try{fetch('https://script.google.com/macros/s/AKfycbyosLZwguJ319pOKBigD7xXS5e5f7-c21z6o8zU2bWvuQKdqZmD8Qg9w9V_zxkPaPtq6g/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({cargo:cargo,country:country,value:val?val+' '+currency:'—',email:isEmail?contact:'—',phone:phone||'—',contact:contact||'—',notes:notes||'—',source:localStorage.getItem('importica_lead_source')||'Прямий'})});}catch(e){}
   }
   function onError(){
     btn.textContent=isReturning?'⚖️ Отримати оцінку ($25–40) →':'⚖️ Отримати безкоштовну оцінку →';
