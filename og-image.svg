@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="rgba(232,255,0,0.12)"/>
+    </pattern>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8ff00;stop-opacity:0.06"/>
+      <stop offset="100%" style="stop-color:#0d0d0d;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0d0d0d"/>
+  <!-- Dot grid -->
+  <rect width="1200" height="630" fill="url(#dots)"/>
+  <!-- Glow top-left -->
+  <rect width="700" height="400" fill="url(#glow)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="3" fill="#e8ff00"/>
+
+  <!-- Left border accent -->
+  <rect x="0" y="0" width="3" height="630" fill="#e8ff00" opacity="0.3"/>
+
+  <!-- Logo box -->
+  <rect x="72" y="72" width="60" height="60" rx="10" fill="#e8ff00"/>
+  <text x="102" y="117" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="40" fill="#0d0d0d">I</text>
+
+  <!-- Brand name -->
+  <text x="148" y="116" font-family="Arial Black, Arial" font-weight="900" font-size="34" fill="#f5f5f0" letter-spacing="3">IMPORTICA</text>
+
+  <!-- Divider -->
+  <rect x="72" y="164" width="480" height="1" fill="#2a2a2a"/>
+
+  <!-- Main headline -->
+  <text x="72" y="252" font-family="Arial Black, Arial" font-weight="900" font-size="62" fill="#f5f5f0">Доставка авто</text>
+  <text x="72" y="330" font-family="Arial Black, Arial" font-weight="900" font-size="62" fill="#e8ff00">з Клайпеди від $850</text>
+
+  <!-- Subtext -->
+  <text x="72" y="386" font-family="Arial, sans-serif" font-size="24" fill="#666">Власні автовози · Регулярні рейси · Офіційне оформлення</text>
+
+  <!-- Service chips -->
+  <rect x="72" y="422" width="220" height="46" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <text x="182" y="451" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#f5f5f0">🚗  Авто з Литви</text>
+
+  <rect x="308" y="422" width="220" height="46" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <text x="418" y="451" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#f5f5f0">🌍  Логістика</text>
+
+  <rect x="544" y="422" width="220" height="46" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <text x="654" y="451" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#f5f5f0">⚖️  Митні ризики</text>
+
+  <!-- Bottom URL -->
+  <text x="72" y="566" font-family="Arial, sans-serif" font-size="20" fill="#444">importica.com.ua</text>
+
+  <!-- Right side: big decorative "I" watermark -->
+  <text x="1060" y="560" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="520" fill="rgba(232,255,0,0.03)">I</text>
+
+  <!-- Right side: price highlight box -->
+  <rect x="880" y="200" width="260" height="160" rx="16" fill="#1a1a1a" stroke="#e8ff00" stroke-width="1.5" opacity="0.9"/>
+  <text x="1010" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#888">Ринок</text>
+  <text x="1010" y="285" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="26" fill="#555" text-decoration="line-through">$1000–1100</text>
+  <rect x="900" y="298" width="220" height="1" fill="#2a2a2a"/>
+  <text x="1010" y="328" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#e8ff00">Importica</text>
+  <text x="1010" y="358" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="34" fill="#e8ff00">$850</text>
+</svg>
