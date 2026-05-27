@@ -923,51 +923,77 @@ function submitLead(){
   if(cargo.includes('Товари')&&!_files.length){document.getElementById('lm-file-area').classList.add('field-error-area');showToast('Для товарів необхідно додати файл інвойсу або скрін');return;}
   const btn=document.querySelector('.btn-submit');
   btn.textContent='⏳ Відправляємо...';btn.disabled=true;
-  const displayContact=phone||contact;
   const successHtml=`<div style="text-align:center;padding:2.5rem 1rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Запит прийнято!</div><div style="color:#666;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;">Ваш запит прийнято, найближчим часом ми зконтактуємо з вами та надамо всю необхідну інформацію відповідно запиту!</div><a href="https://t.me/importica_bot" class="btn-main" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;">✈️ Написати в Telegram</a></div>`;
   const isEmail=contact&&contact.includes('@')&&contact.includes('.');
   const isReturning=!!localStorage.getItem('importica_customs_done');
   const statusText=isReturning?'ПОВТОРНИЙ — виставити рахунок $25–40':'НОВИЙ — безкоштовна оцінка';
   const subjectContact=isEmail?` | ${contact}`:(contact?` | Telegram: ${contact}`:'');
-  document.getElementById('hid-subject').value=(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+'Запит на митну оцінку'+subjectContact;
-  document.getElementById('hid-replyto').value=isEmail?contact:'';
-  document.getElementById('hid-status').value=statusText;
-  document.getElementById('hid-email-client').value=isEmail?contact:'—';
-  document.getElementById('hid-phone-hid').value=phone||'—';
-  document.getElementById('hid-cargo').value=cargo;
-  document.getElementById('hid-country').value=country;
-  document.getElementById('hid-val').value=val?val+' '+currency:'не вказано';
-  document.getElementById('hid-contact').value=contact||'—';
-  document.getElementById('hid-notes').value=notes||'—';
-  document.querySelectorAll('.dyn-att').forEach(el=>el.remove());
-  if(_files.length&&window.DataTransfer){
-    const dt0=new DataTransfer();dt0.items.add(_files[0]);
-    document.getElementById('lm-file').files=dt0.files;
-    const form=document.getElementById('lead-form-el');
-    for(let i=1;i<_files.length;i++){
-      const inp=document.createElement('input');
-      inp.type='file';inp.name='attachment'+(i+1);inp.className='dyn-att';inp.style.display='none';
-      const dt=new DataTransfer();dt.items.add(_files[i]);inp.files=dt.files;
-      form.appendChild(inp);
-    }
-  }
-  const frame=document.getElementById('formsubmit-frame');
-  const submitTimeout=setTimeout(function(){
-    frame.onload=null;
-    btn.textContent=isReturning?'⚖️ Отримати оцінку ($25–40) →':'⚖️ Отримати безкоштовну оцінку →';
-    btn.disabled=false;
-    showToast('Помилка відправки. Спробуйте ще раз або напишіть у Telegram');
-  },15000);
-  frame.onload=function(){
-    clearTimeout(submitTimeout);
-    frame.onload=null;
+  const subject=(isReturning?'[ПОВТОРНИЙ] ':'[НОВИЙ] ')+'Запит на митну оцінку'+subjectContact;
+  const replyto=isEmail?contact:'';
+  function onSuccess(){
     const stored=getStoredContacts();
     [phone,contact].forEach(v=>{if(v&&!stored.some(c=>normalizeContact(c)===normalizeContact(v)))stored.push(v);});
     localStorage.setItem('importica_contacts',JSON.stringify(stored));
     localStorage.setItem('importica_customs_done','1');
     document.getElementById('leadFormWrap').innerHTML=successHtml;
-  };
-  document.getElementById('lead-form-el').submit();
+  }
+  function onError(){
+    btn.textContent=isReturning?'⚖️ Отримати оцінку ($25–40) →':'⚖️ Отримати безкоштовну оцінку →';
+    btn.disabled=false;
+    showToast('Помилка відправки. Спробуйте ще раз або напишіть у Telegram');
+    window.open('https://t.me/importica_bot','_blank');
+  }
+  if(!_files.length){
+    // Без файлів — fetch (надійно на iOS Safari та всіх пристроях)
+    const fd=new FormData();
+    fd.append('_subject',subject);
+    fd.append('_template','table');
+    fd.append('_captcha','false');
+    if(replyto)fd.append('_replyto',replyto);
+    fd.append('Статус_клієнта',statusText);
+    fd.append('Email_клієнта',isEmail?contact:'—');
+    fd.append('Телефон',phone||'—');
+    fd.append('Вантаж',cargo);
+    fd.append('Країна',country);
+    fd.append('Вартість',val?val+' '+currency:'не вказано');
+    fd.append('Контакт',contact||'—');
+    fd.append('Деталі',notes||'—');
+    const t=setTimeout(onError,15000);
+    fetch('https://formsubmit.co/ajax/56ca8e43c291e01a9138572f3c12ca69',{
+      method:'POST',body:fd,headers:{'Accept':'application/json'}
+    }).then(r=>r.json()).then(data=>{
+      clearTimeout(t);
+      if(data.success==='true'||data.success===true)onSuccess();else onError();
+    }).catch(function(){clearTimeout(t);onError();});
+  } else {
+    // З файлами — iframe (єдиний спосіб відправити файли через formsubmit)
+    document.getElementById('hid-subject').value=subject;
+    document.getElementById('hid-replyto').value=replyto;
+    document.getElementById('hid-status').value=statusText;
+    document.getElementById('hid-email-client').value=isEmail?contact:'—';
+    document.getElementById('hid-phone-hid').value=phone||'—';
+    document.getElementById('hid-cargo').value=cargo;
+    document.getElementById('hid-country').value=country;
+    document.getElementById('hid-val').value=val?val+' '+currency:'не вказано';
+    document.getElementById('hid-contact').value=contact||'—';
+    document.getElementById('hid-notes').value=notes||'—';
+    document.querySelectorAll('.dyn-att').forEach(el=>el.remove());
+    if(window.DataTransfer){
+      const dt0=new DataTransfer();dt0.items.add(_files[0]);
+      document.getElementById('lm-file').files=dt0.files;
+      const form=document.getElementById('lead-form-el');
+      for(let i=1;i<_files.length;i++){
+        const inp=document.createElement('input');
+        inp.type='file';inp.name='attachment'+(i+1);inp.className='dyn-att';inp.style.display='none';
+        const dt=new DataTransfer();dt.items.add(_files[i]);inp.files=dt.files;
+        form.appendChild(inp);
+      }
+    }
+    const frame=document.getElementById('formsubmit-frame');
+    const t=setTimeout(function(){frame.onload=null;onError();},15000);
+    frame.onload=function(){clearTimeout(t);frame.onload=null;onSuccess();};
+    document.getElementById('lead-form-el').submit();
+  }
 }
 </script>
 <iframe id="formsubmit-frame" name="formsubmit-frame" style="display:none;" title="form-submit"></iframe>
