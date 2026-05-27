@@ -49,7 +49,14 @@ importica/
 | Telegram бот | @importica_bot |
 | Make.com | Пересилає повідомлення бота в групу "Importica - Заявки" + автовідповідь |
 | Search Console | Підключено, sitemap відправлено 17.05.2026 |
-| Форма (Customs) | Formsubmit + hidden iframe (підключено 21.05.2026) |
+| Форма (Customs) | Formsubmit + fetch/iframe (iOS fix 27.05.2026) |
+| Google Analytics | GA4 підключено 27.05.2026 (G-GQBVZQ0LDF) |
+| Google Sheets | "Importica — Ліди" → Apps Script webhook (27.05.2026) |
+| Apps Script | Web App webhook (daniilka4449@gmail.com) |
+| Bot команди | /start, /help — через BotFather (27.05.2026) |
+| Make.com сценарій | 3 шляхи: /start → привітання, /help → контакти, інше → група + автовідповідь |
+| UTM трекінг | localStorage + referrer auto-detect (Google/Telegram/Facebook/Instagram) |
+| og:image | og-image.svg 1200×630px брендований (27.05.2026) |
 
 **Контакти на сайті:**
 - Телефон: `+38 050 231 36 52` — **ТИМЧАСОВИЙ**, замінити в 3 місцях: topbar, contacts-strip, footer
@@ -138,6 +145,87 @@ importica/
 
 ---
 
+## Google Sheets webhook — таблиця лідів
+
+**Статус: ✅ працює (27.05.2026)**
+
+- **Таблиця:** "Importica — Ліди" (Sheet ID: `1F5WF-leQPvqwnA-XTCPxRrSPc-amLa0KXzh_kX79Wvk`)
+- **Колонки:** Дата | Час | Вантаж | Країна | Вартість | Email | Телефон | Контакт | Деталі | Джерело | Статус
+- **Webhook URL:** `https://script.google.com/macros/s/AKfycbyosLZwguJ319pOKBigD7xXS5e5f7-c21z6o8zU2bWvuQKdqZmD8Qg9w9V_zxkPaPtq6g/exec`
+- **Доступ:** Anyone (без авторизації) → Apps Script виконує doPost() → пише рядок у Sheet
+
+**В index.html в onSuccess() після Formsubmit:**
+```javascript
+fetch('https://script.google.com/macros/s/.../exec', {
+  method:'POST', mode:'no-cors',
+  body: JSON.stringify({cargo, country, value, email, phone, contact, notes, source})
+});
+```
+
+**Apps Script код:** doPost(e) → SpreadsheetApp.openById().appendRow([...])
+
+---
+
+## UTM-трекінг джерела лідів
+
+**Статус: ✅ працює (27.05.2026)**
+
+JavaScript `detectLeadSource()` запускається при завантаженні сторінки:
+1. Якщо в URL є `?utm_source=...` → використовує його
+2. Інакше якщо `document.referrer` → визначає: Google / Facebook / Instagram / Telegram / domain
+3. Інакше → "Прямий" (first-touch attribution через localStorage)
+
+**Зберігається:** `localStorage.importica_lead_source`
+**Передається в:** email (через Formsubmit), Google Sheets (через webhook)
+
+**UTM-посилання для соцмереж:**
+```
+importica.com.ua?utm_source=telegram&utm_medium=social
+importica.com.ua?utm_source=facebook&utm_medium=social
+importica.com.ua?utm_source=instagram&utm_medium=social
+```
+
+---
+
+## Telegram бот — повна архітектура
+
+**@importica_bot** (керує @BotFather, акаунт daniilka4449@gmail.com)
+
+### Команди (BotFather → Commands):
+- `/start` — 🚀 Новий запит — написати нам
+- `/help` — Контакти та інформація
+
+### Опис бота (BotFather → Edit Info → "What can this bot do?"):
+```
+🚗 Доставка авто з Клайпеди від $850
+🌍 Міжнародна логістика зі США, Кореї, Китаю
+⚖️ Оцінка митних ризиків
+📋 Для нового запиту — напишіть /start
+```
+
+### Make.com сценарій "Інтеграція Telegram-бота"
+
+**Структура (3 шляхи через Router):**
+
+| Шлях | Умова | Дія |
+|------|-------|-----|
+| 1-й `/start` | Message.Text = /start | Bot 3: Привітання + перелік послуг |
+| 2-й Не /start | Text ≠ /start AND Text ≠ /help | Bot 4 (forward в групу "Заявки") → Bot 5 (автовідповідь "Дякуємо...") |
+| 3-й `/help` | Text = /help | Bot 6: Контакти Importica |
+
+**Telegram Bot 6 (новий, 27.05.2026):** надсилає повідомлення з контактами в Chat ID клієнта (`Message: Chat: ID`):
+```
+📞 Контакти Importica
+🌐 Сайт: importica.com.ua
+📧 Email: info@importica.com.ua
+💬 Telegram: @importica_bot
+☎️ Телефон: +38 050 231 36 52
+⏰ Працюємо щодня з 9:00 до 20:00
+📋 Щоб залишити заявку — напишіть /start
+```
+
+---
+
 ## Дизайн-система (важливо зберігати!)
 
 ```
@@ -192,11 +280,21 @@ Telegram:  #229ED9
 - [x] **Виправлено 🛃 → ⚖️** — ЗРОБЛЕНО 21.05.2026 (у всіх місцях де митниця)
 - [x] **Виправлено "митнею" → "митницею"** — ЗРОБЛЕНО 21.05.2026
 - [x] **GA4** — підключено 27.05.2026 (G-GQBVZQ0LDF)
+- [x] **og:image** — зроблено 27.05.2026 (og-image.svg 1200×630)
+- [x] **iOS Safari fix** — 27.05.2026 (fetch для text-only)
+- [x] **Калькулятор митниці** — 27.05.2026 (офіційні ставки UA, авто+товари)
+- [x] **Валюти інвойсу** — 27.05.2026 (USD/EUR/UAH/USDT)
+- [x] **UTM-трекінг джерела** — 27.05.2026
+- [x] **Google Sheets таблиця лідів** — 27.05.2026
+- [x] **Apps Script webhook** — 27.05.2026
+- [x] **Bot меню команд** — 27.05.2026 (/start, /help)
+- [x] **Bot опис** — 27.05.2026 (інструкції для повторних клієнтів)
+- [x] **Make.com 3-й шлях /help** — 27.05.2026 (контакти)
+- [ ] **Make.com → Google Sheets для бота** — додати модуль Google Sheets на Path 2 (НА ЗАВТРА 28.05.2026)
 - [ ] **Постійний телефон** — замінити тимчасовий +380502313652 (3 місця в index.html)
 - [ ] **Секція "Про нас"** — повернути з реальними даними
 - [ ] **Відгуки** — додати реальні (перші клієнти через сайт)
 - [ ] **Instagram** — створити акаунт → підключити кнопки на сайті
-- [ ] **og:image** — зображення 1200×630px для соцмереж
 - [ ] **English версія** — довгострокова ціль
 
 ---

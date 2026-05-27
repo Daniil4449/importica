@@ -117,6 +117,76 @@ Formsubmit обробляє лише ОДИН `name="attachment"`. Для кож
 
 ---
 
+## Google Sheets — таблиця лідів
+
+**Статус: ✅ працює (27.05.2026)**
+
+- **Назва:** Importica — Ліди
+- **Sheet ID:** `1F5WF-leQPvqwnA-XTCPxRrSPc-amLa0KXzh_kX79Wvk`
+- **Колонки:** Дата | Час | Вантаж | Країна | Вартість | Email | Телефон | Контакт | Деталі | Джерело | Статус
+
+### Apps Script Webhook
+- **URL:** `https://script.google.com/macros/s/AKfycbyosLZwguJ319pOKBigD7xXS5e5f7-c21z6o8zU2bWvuQKdqZmD8Qg9w9V_zxkPaPtq6g/exec`
+- **Доступ:** Anyone (без авторизації)
+- **Run as:** daniilka4449@gmail.com
+- **Метод:** doPost(e) → парсить JSON → SpreadsheetApp.appendRow()
+
+### Інтеграція в index.html
+У функції `onSuccess()` після Formsubmit викликається fetch до webhook (fire-and-forget, mode:'no-cors').
+
+⚠️ **Поки що тільки з сайту.** Заявки з Telegram бота НЕ потрапляють в таблицю (треба додати модуль Google Sheets в Make.com на Path 2).
+
+---
+
+## UTM-трекінг джерела лідів (27.05.2026)
+
+JavaScript `detectLeadSource()` на завантаженні сторінки:
+1. URL `?utm_source=...` → пріоритет
+2. `document.referrer` → Google / Facebook / Instagram / Telegram / домен
+3. Прямий вхід → "Прямий"
+
+**Зберігається:** `localStorage.importica_lead_source`
+**Передається в:** Formsubmit (email) + Google Sheets (webhook)
+
+**UTM-посилання для соцмереж:**
+- Telegram: `importica.com.ua?utm_source=telegram&utm_medium=social`
+- Facebook: `importica.com.ua?utm_source=facebook&utm_medium=social`
+- Instagram: `importica.com.ua?utm_source=instagram&utm_medium=social`
+
+---
+
+## Telegram бот — повна архітектура
+
+**@importica_bot** | BotFather: daniilka4449@gmail.com
+
+### BotFather налаштування (27.05.2026)
+
+**Команди (/setcommands):**
+- `/start` — 🚀 Новий запит — написати нам
+- `/help` — Контакти та інформація
+
+**Опис ("What can this bot do?"):**
+```
+🚗 Доставка авто з Клайпеди від $850
+🌍 Міжнародна логістика зі США, Кореї, Китаю
+⚖️ Оцінка митних ризиків
+📋 Для нового запиту — напишіть /start
+```
+
+### Make.com сценарій "Інтеграція Telegram-бота"
+
+| № | Шлях | Умова | Результат |
+|---|------|-------|-----------|
+| 1 | `/start` | Text = /start | Bot 3: привітання + послуги |
+| 2 | Не команда | Text ≠ /start AND Text ≠ /help | Bot 4: forward в групу "Заявки" → Bot 5: автовідповідь |
+| 3 | `/help` | Text = /help | Bot 6: контакти Importica (доданий 27.05.2026) |
+
+**Шлях 3 (новий):**
+- Chat ID: `1. Message: Chat: ID`
+- Text: повідомлення з контактами (сайт, email, telegram, телефон, графік роботи)
+
+---
+
 ## Калькулятор митниці (оновлено 27.05.2026)
 
 **Два режими:**
