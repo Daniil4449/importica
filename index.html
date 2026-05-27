@@ -738,8 +738,14 @@ footer .logo{font-size:0.95rem;}
             <input type="number" id="car-year" placeholder="Наприклад: 2018" min="1990" max="2026" oninput="calcCustoms()">
           </div>
           <div class="form-group">
-            <label>Митна вартість (EUR)</label>
-            <input type="number" id="car-value" placeholder="Наприклад: 12000" oninput="calcCustoms()">
+            <label>Митна вартість</label>
+            <div style="display:flex;gap:0.5rem;">
+              <input type="number" id="car-value" placeholder="Наприклад: 12000" oninput="calcCustoms()" style="flex:1;min-width:0;">
+              <select id="car-currency" onchange="calcCustoms()" style="width:82px;flex-shrink:0;">
+                <option value="EUR">€ EUR</option>
+                <option value="USD">$ USD</option>
+              </select>
+            </div>
           </div>
         </div>
         <!-- ТОВАРИ ФОРМА -->
@@ -748,8 +754,14 @@ footer .logo{font-size:0.95rem;}
           <h2>Розмитнення товарів</h2>
           <p class="section-sub">Мито та ПДВ на основі митної вартості. Ставку мита уточнюйте по УКТЗЕД або у менеджера.</p>
           <div class="form-group">
-            <label>Митна вартість товару (EUR)</label>
-            <input type="number" id="goods-value" placeholder="Наприклад: 5000" oninput="calcCustoms()">
+            <label>Митна вартість товару</label>
+            <div style="display:flex;gap:0.5rem;">
+              <input type="number" id="goods-value" placeholder="Наприклад: 5000" oninput="calcCustoms()" style="flex:1;min-width:0;">
+              <select id="goods-currency" onchange="calcCustoms()" style="width:82px;flex-shrink:0;">
+                <option value="EUR">€ EUR</option>
+                <option value="USD">$ USD</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label>Ставка ввізного мита (%)</label>
@@ -907,7 +919,9 @@ function calcCarCustoms(){
   const fuel=document.getElementById('fuel-type').value;
   const vol=parseFloat(document.getElementById('engine-vol').value)||0;
   const year=parseInt(document.getElementById('car-year').value)||0;
-  const value=parseFloat(document.getElementById('car-value').value)||0;
+  const rawVal=parseFloat(document.getElementById('car-value').value)||0;
+  const currency=document.getElementById('car-currency').value;
+  const value=currency==='USD'?Math.round(rawVal/1.08):rawVal;
   const reset=function(msg){document.getElementById('price-num').textContent='—';document.getElementById('price-note').textContent=msg||'Заповніть всі поля для розрахунку';document.getElementById('breakdown').style.display='none';};
   if(!fuel||year<1990||year>2026||value<=0){reset();return;}
   if((fuel==='petrol'||fuel==='diesel')&&vol<=0){reset('Вкажіть об\'єм двигуна');return;}
@@ -931,7 +945,9 @@ function calcCarCustoms(){
   document.getElementById('price-note').textContent='* Орієнтовно. Точна сума залежить від курсу НБУ на день оформлення.';
 }
 function calcGoodsCustoms(){
-  const value=parseFloat(document.getElementById('goods-value').value)||0;
+  const rawVal=parseFloat(document.getElementById('goods-value').value)||0;
+  const currency=document.getElementById('goods-currency').value;
+  const value=currency==='USD'?Math.round(rawVal/1.08):rawVal;
   const dutyRate=parseFloat(document.getElementById('goods-duty-rate').value);
   if(value<=0||isNaN(dutyRate)||dutyRate<0){document.getElementById('price-num').textContent='—';document.getElementById('price-note').textContent='Заповніть всі поля для розрахунку';document.getElementById('breakdown').style.display='none';return;}
   const duty=Math.round(value*(dutyRate/100));
