@@ -255,6 +255,10 @@ textarea{resize:vertical;min-height:72px;}
 .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:start;}
 .calc-result{background:#111;border:1px solid #2a2a2a;border-radius:17px;padding:1.65rem;}
 .calc-result h3{font-family:'Unbounded',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#555;margin-bottom:1.15rem;}
+.calc-tabs{display:flex;gap:0.5rem;margin-bottom:2rem;}
+.calc-tab{background:#111;border:1px solid #2a2a2a;color:#666;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;padding:9px 22px;border-radius:8px;cursor:pointer;transition:all 0.2s;}
+.calc-tab:hover{border-color:#e8ff00;color:#f5f5f0;}
+.calc-tab-active{background:rgba(232,255,0,0.08);border-color:#e8ff00;color:#e8ff00;}
 .price-display{font-family:'Unbounded',sans-serif;font-size:2.8rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.35rem;}
 .price-display .curr{color:#e8ff00;font-size:1.6rem;vertical-align:super;}
 .price-note{color:#555;font-size:0.78rem;margin-bottom:1.4rem;}
@@ -705,46 +709,66 @@ footer .logo{font-size:0.95rem;}
 <!-- CALCULATOR -->
 <section id="calculator" style="padding-top:0;">
   <div class="calc-section fade-up">
+    <div class="calc-tabs">
+      <button class="calc-tab calc-tab-active" id="tab-car" onclick="switchCalcTab('car')">🚗 Автомобіль</button>
+      <button class="calc-tab" id="tab-goods" onclick="switchCalcTab('goods')">📦 Товари</button>
+    </div>
     <div class="calc-grid">
       <div>
-        <div class="section-label">Швидкий калькулятор</div>
-        <h2>Орієнтовна вартість доставки</h2>
-        <p class="section-sub">Приблизна цифра за 30 секунд. Точна вартість + митні витрати — через безкоштовну оцінку вище.</p>
-        <div class="form-group"><label>Країна відправки</label>
-          <select id="from-country" onchange="calcPrice()">
-            <option value="">Оберіть країну</option>
-            <option value="usa">🇺🇸 США</option><option value="eu">🇪🇺 Європа</option>
-            <option value="kr">🇰🇷 Корея</option><option value="cn">🇨🇳 Китай</option>
-          </select>
+        <!-- АВТО ФОРМА -->
+        <div id="calc-car-form">
+          <div class="section-label">Митний калькулятор</div>
+          <h2>Розмитнення автомобіля</h2>
+          <p class="section-sub">Акциз, мито та ПДВ за офіційними ставками 2025–2026. Точний розрахунок — через безкоштовну оцінку.</p>
+          <div class="form-group"><label>Тип палива</label>
+            <select id="fuel-type" onchange="updateCalcUI();calcCustoms()">
+              <option value="">Оберіть тип</option>
+              <option value="petrol">⛽ Бензин</option>
+              <option value="diesel">🛢️ Дизель</option>
+              <option value="electric">⚡ Електро</option>
+              <option value="hybrid">🔋 Гібрид</option>
+            </select>
+          </div>
+          <div class="form-group" id="engine-vol-group">
+            <label id="engine-vol-label">Об'єм двигуна (см³)</label>
+            <input type="number" id="engine-vol" placeholder="Наприклад: 2000" oninput="calcCustoms()">
+          </div>
+          <div class="form-group">
+            <label>Рік випуску</label>
+            <input type="number" id="car-year" placeholder="Наприклад: 2018" min="1990" max="2026" oninput="calcCustoms()">
+          </div>
+          <div class="form-group">
+            <label>Митна вартість (EUR)</label>
+            <input type="number" id="car-value" placeholder="Наприклад: 12000" oninput="calcCustoms()">
+          </div>
         </div>
-        <div class="form-group"><label>Тип вантажу</label>
-          <select id="cargo-type" onchange="calcPrice()">
-            <option value="">Оберіть тип</option>
-            <option value="car">🚗 Автомобіль</option><option value="box">📦 Товари</option>
-            <option value="machinery">⚙️ Спецтехніка</option><option value="other">📋 Інше</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Вага (кг)</label><input type="number" id="weight" placeholder="Наприклад: 1500" oninput="calcPrice()"></div>
-        <div class="form-group"><label>Маршрут</label>
-          <select id="ship-type" onchange="calcPrice()">
-            <option value="sea">🚢 Море (дешевше)</option>
-            <option value="land">🚛 Суша (швидше)</option>
-          </select>
+        <!-- ТОВАРИ ФОРМА -->
+        <div id="calc-goods-form" style="display:none;">
+          <div class="section-label">Митний калькулятор</div>
+          <h2>Розмитнення товарів</h2>
+          <p class="section-sub">Мито та ПДВ на основі митної вартості. Ставку мита уточнюйте по УКТЗЕД або у менеджера.</p>
+          <div class="form-group">
+            <label>Митна вартість товару (EUR)</label>
+            <input type="number" id="goods-value" placeholder="Наприклад: 5000" oninput="calcCustoms()">
+          </div>
+          <div class="form-group">
+            <label>Ставка ввізного мита (%)</label>
+            <input type="number" id="goods-duty-rate" placeholder="Наприклад: 10" min="0" max="100" step="0.1" oninput="calcCustoms()">
+          </div>
         </div>
       </div>
       <div class="calc-result">
-        <h3>Орієнтовна вартість доставки</h3>
-        <div class="price-display"><span class="curr">$</span><span id="price-num">—</span></div>
+        <h3>Орієнтовна вартість розмитнення</h3>
+        <div class="price-display"><span class="curr">€</span><span id="price-num">—</span></div>
         <div class="price-note" id="price-note">Заповніть форму для розрахунку</div>
         <div class="price-breakdown" id="breakdown" style="display:none;">
-          <div class="breakdown-item"><span class="breakdown-label">Фрахт</span><span class="breakdown-val" id="b-freight">—</span></div>
-          <div class="breakdown-item"><span class="breakdown-label">Страхування</span><span class="breakdown-val" id="b-insurance">—</span></div>
-          <div class="breakdown-item"><span class="breakdown-label">Документи</span><span class="breakdown-val" id="b-docs">—</span></div>
-          <div class="breakdown-item"><span class="breakdown-label">Термін</span><span class="breakdown-val" id="b-time">—</span></div>
+          <div class="breakdown-item"><span class="breakdown-label" id="b-excise-label">Акциз</span><span class="breakdown-val" id="b-excise">—</span></div>
+          <div class="breakdown-item"><span class="breakdown-label">Ввізне мито (10%)</span><span class="breakdown-val" id="b-duty">—</span></div>
+          <div class="breakdown-item"><span class="breakdown-label">ПДВ (20%)</span><span class="breakdown-val" id="b-vat">—</span></div>
         </div>
         <div style="margin-top:1.4rem;display:flex;flex-direction:column;gap:0.55rem;">
-          <a href="#customs" class="btn-main" style="text-decoration:none;font-size:0.88rem;">⚖️ + Розрахувати митні витрати</a>
-          <a href="https://t.me/importica_bot" class="btn-secondary">✈️ Отримати точний розрахунок</a>
+          <a href="#customs" class="btn-main" style="text-decoration:none;font-size:0.88rem;">⚖️ Отримати точну оцінку безкоштовно</a>
+          <a href="https://t.me/importica_bot" class="btn-secondary">✈️ Написати в Telegram</a>
         </div>
       </div>
     </div>
@@ -856,26 +880,70 @@ document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
 function toggleFaq(el){const item=el.parentElement;const open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!open)item.classList.add('open');}
 
-const rates={usa:{sea:2.8,land:null,time:'25–35 днів',base:800},eu:{sea:null,land:1.2,time:'5–10 днів',base:300},kr:{sea:2.2,land:null,time:'20–28 днів',base:700},cn:{sea:1.8,land:null,time:'30–45 днів',base:600}};
-const cargoMult={car:2.5,box:1,machinery:3,other:1.2};
-function calcPrice(){
-  const country=document.getElementById('from-country').value;
-  const cargo=document.getElementById('cargo-type').value;
-  const weight=parseFloat(document.getElementById('weight').value)||0;
-  const ship=document.getElementById('ship-type').value;
-  if(!country||!cargo||weight<=0){document.getElementById('price-num').textContent='—';document.getElementById('price-note').textContent='Заповніть всі поля для розрахунку';document.getElementById('breakdown').style.display='none';return;}
-  const r=rates[country];
-  const perKg=(ship==='sea'?(r.sea||r.land):(r.land||r.sea))||2;
-  const freight=Math.round(r.base+weight*perKg*(cargoMult[cargo]||1));
-  const insurance=Math.round(freight*0.015);
-  const docs=120;
-  document.getElementById('price-num').textContent=(freight+insurance+docs).toLocaleString();
-  document.getElementById('price-note').textContent='* Вартість доставки. Митні витрати — окремо.';
-  document.getElementById('b-freight').textContent='$'+freight.toLocaleString();
-  document.getElementById('b-insurance').textContent='$'+insurance.toLocaleString();
-  document.getElementById('b-docs').textContent='$'+docs;
-  document.getElementById('b-time').textContent=r.time;
-  document.getElementById('breakdown').style.display='flex';
+let _calcMode='car';
+function switchCalcTab(mode){
+  _calcMode=mode;
+  document.getElementById('calc-car-form').style.display=mode==='car'?'':'none';
+  document.getElementById('calc-goods-form').style.display=mode==='goods'?'':'none';
+  document.getElementById('tab-car').className='calc-tab'+(mode==='car'?' calc-tab-active':'');
+  document.getElementById('tab-goods').className='calc-tab'+(mode==='goods'?' calc-tab-active':'');
+  document.getElementById('price-num').textContent='—';
+  document.getElementById('price-note').textContent='Заповніть форму для розрахунку';
+  document.getElementById('breakdown').style.display='none';
+}
+function updateCalcUI(){
+  const fuel=document.getElementById('fuel-type').value;
+  const grp=document.getElementById('engine-vol-group');
+  const lbl=document.getElementById('engine-vol-label');
+  const inp=document.getElementById('engine-vol');
+  if(fuel==='electric'){grp.style.display='';lbl.textContent='Ємність батареї (кВт·год)';inp.placeholder='Наприклад: 77';}
+  else if(fuel==='hybrid'){grp.style.display='none';}
+  else{grp.style.display='';lbl.textContent='Об\'єм двигуна (см³)';inp.placeholder='Наприклад: 2000';}
+}
+function calcCustoms(){
+  if(_calcMode==='car')calcCarCustoms();else calcGoodsCustoms();
+}
+function calcCarCustoms(){
+  const fuel=document.getElementById('fuel-type').value;
+  const vol=parseFloat(document.getElementById('engine-vol').value)||0;
+  const year=parseInt(document.getElementById('car-year').value)||0;
+  const value=parseFloat(document.getElementById('car-value').value)||0;
+  const reset=function(msg){document.getElementById('price-num').textContent='—';document.getElementById('price-note').textContent=msg||'Заповніть всі поля для розрахунку';document.getElementById('breakdown').style.display='none';};
+  if(!fuel||year<1990||year>2026||value<=0){reset();return;}
+  if((fuel==='petrol'||fuel==='diesel')&&vol<=0){reset('Вкажіть об\'єм двигуна');return;}
+  if(fuel==='electric'&&vol<=0){reset('Вкажіть ємність батареї');return;}
+  const age=Math.min(Math.max(new Date().getFullYear()-year+1,1),15);
+  let excise=0,dutyRate=0.10;
+  if(fuel==='petrol'){excise=Math.round((vol<=3000?50:100)*(vol/1000)*age);}
+  else if(fuel==='diesel'){excise=Math.round((vol<=3500?75:100)*(vol/1000)*age);}
+  else if(fuel==='electric'){excise=Math.round(vol*1);dutyRate=0;}
+  else if(fuel==='hybrid'){excise=100;dutyRate=0.10;}
+  const duty=Math.round(value*dutyRate);
+  const vat=Math.round((value+duty+excise)*0.20);
+  const total=excise+duty+vat;
+  document.getElementById('price-num').textContent=total.toLocaleString();
+  document.getElementById('price-note').textContent='* Орієнтовно. Точна сума залежить від курсу НБУ та митної оцінки.';
+  document.getElementById('b-excise-label').textContent='Акциз';
+  document.getElementById('b-excise').textContent='€'+excise.toLocaleString();
+  document.getElementById('b-duty').textContent='€'+duty.toLocaleString()+(dutyRate===0?' (0% електро)':'');
+  document.getElementById('b-vat').textContent='€'+vat.toLocaleString();
+  document.getElementById('breakdown').style.display='';
+  document.getElementById('price-note').textContent='* Орієнтовно. Точна сума залежить від курсу НБУ на день оформлення.';
+}
+function calcGoodsCustoms(){
+  const value=parseFloat(document.getElementById('goods-value').value)||0;
+  const dutyRate=parseFloat(document.getElementById('goods-duty-rate').value);
+  if(value<=0||isNaN(dutyRate)||dutyRate<0){document.getElementById('price-num').textContent='—';document.getElementById('price-note').textContent='Заповніть всі поля для розрахунку';document.getElementById('breakdown').style.display='none';return;}
+  const duty=Math.round(value*(dutyRate/100));
+  const vat=Math.round((value+duty)*0.20);
+  const total=duty+vat;
+  document.getElementById('price-num').textContent=total.toLocaleString();
+  document.getElementById('b-excise-label').textContent='Акциз';
+  document.getElementById('b-excise').textContent='€0';
+  document.getElementById('b-duty').textContent='€'+duty.toLocaleString();
+  document.getElementById('b-vat').textContent='€'+vat.toLocaleString();
+  document.getElementById('breakdown').style.display='';
+  document.getElementById('price-note').textContent='* Орієнтовно. Акциз може застосовуватись до окремих категорій товарів.';
 }
 
 let _files=[];
