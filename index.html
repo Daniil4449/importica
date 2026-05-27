@@ -611,6 +611,7 @@ footer .logo{font-size:0.95rem;}
         <input type="hidden" name="Вартість" id="hid-val">
         <input type="hidden" name="Контакт" id="hid-contact">
         <input type="hidden" name="Деталі" id="hid-notes">
+        <input type="hidden" name="Джерело" id="hid-source">
         <div class="lead-form-title" id="lm-form-title">Безкоштовна оцінка митних ризиків</div>
         <div class="lead-form-sub" id="lm-form-sub">Заповніть форму — і протягом 24 годин отримаєте детальний розрахунок у Telegram або на пошту.</div>
         <div class="form-group"><label>Що везете?</label>
@@ -989,6 +990,29 @@ function handleFileDrop(e){
   document.getElementById('lm-file-area').classList.remove('drag-over');
   addFiles(e.dataTransfer.files);
 }
+function detectLeadSource(){
+  var p=new URLSearchParams(window.location.search);
+  var src='';
+  if(p.get('utm_source')){
+    src=p.get('utm_source');
+    if(p.get('utm_medium'))src+=' / '+p.get('utm_medium');
+    if(p.get('utm_campaign'))src+=' / '+p.get('utm_campaign');
+    localStorage.setItem('importica_lead_source',src);
+  } else {
+    var ref=document.referrer;
+    if(ref){
+      if(/google\./i.test(ref))src='Google Search';
+      else if(/facebook\.com|fb\.com/i.test(ref))src='Facebook';
+      else if(/instagram\.com/i.test(ref))src='Instagram';
+      else if(/t\.me|telegram\.org/i.test(ref))src='Telegram';
+      else{try{src=new URL(ref).hostname;}catch(e){src='Реферал';}}
+      localStorage.setItem('importica_lead_source',src);
+    } else if(!localStorage.getItem('importica_lead_source')){
+      localStorage.setItem('importica_lead_source','Прямий');
+    }
+  }
+}
+detectLeadSource();
 function submitLead(){
   const cargo=document.getElementById('lm-cargo').value;
   const country=document.getElementById('lm-country').value;
@@ -1043,6 +1067,7 @@ function submitLead(){
     fd.append('Вартість',val?val+' '+currency:'не вказано');
     fd.append('Контакт',contact||'—');
     fd.append('Деталі',notes||'—');
+    fd.append('Джерело',localStorage.getItem('importica_lead_source')||'Прямий');
     const t=setTimeout(onError,15000);
     fetch('https://formsubmit.co/ajax/56ca8e43c291e01a9138572f3c12ca69',{
       method:'POST',body:fd,headers:{'Accept':'application/json'}
@@ -1062,6 +1087,7 @@ function submitLead(){
     document.getElementById('hid-val').value=val?val+' '+currency:'не вказано';
     document.getElementById('hid-contact').value=contact||'—';
     document.getElementById('hid-notes').value=notes||'—';
+    document.getElementById('hid-source').value=localStorage.getItem('importica_lead_source')||'Прямий';
     document.querySelectorAll('.dyn-att').forEach(el=>el.remove());
     if(window.DataTransfer){
       const dt0=new DataTransfer();dt0.items.add(_files[0]);
