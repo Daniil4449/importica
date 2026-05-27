@@ -1,6 +1,6 @@
 # Importica — Project Knowledge
 
-**Оновлено:** 21.05.2026 (сесія 2)
+**Оновлено:** 27.05.2026 (сесія 3)
 
 ---
 
@@ -40,32 +40,26 @@
 | Make.com | ✅ | Автопересилання в групу "Importica - Заявки" + автовідповідь |
 | Search Console | ✅ | Підключено, sitemap відправлено 17.05.2026 |
 | Formsubmit | ✅ | Підключено 21.05.2026 — форма митних ризиків (замінив Web3Forms) |
-| Google Analytics GA4 | ❌ | Не підключено (placeholder є в коді) |
+| Google Analytics GA4 | ✅ | Підключено 27.05.2026 — Measurement ID: G-GQBVZQ0LDF |
 
 ---
 
 ## Formsubmit — деталі (форма митних ризиків)
 
-**Статус: ✅ повністю працює end-to-end (21.05.2026)**
+**Статус: ✅ повністю працює end-to-end, включно з iOS Safari (27.05.2026)**
 
 - Сервіс: formsubmit.co (безкоштовний, без реєстрації)
-- Endpoint: `https://formsubmit.co/56ca8e43c291e01a9138572f3c12ca69` (активований hash для danylo@importica.com.ua)
-- Метод: реальний HTML form POST у **прихованому iframe** (не fetch/AJAX, бо AJAX endpoint не підтримує файли)
+- Endpoint hash: `56ca8e43c291e01a9138572f3c12ca69` (для danylo@importica.com.ua)
 - Отримувач: danylo@importica.com.ua → бачить email як від `submissions@formsubmit.co`
 
-**Чому iframe, а не fetch:**
-- AJAX endpoint Formsubmit (`/ajax/`) **не підтримує** вкладені файли
-- Звичайний form POST перезавантажує сторінку — треба iframe як target
+**Подвійна логіка відправки (iOS Safari fix, 27.05.2026):**
+- **Без файлів → fetch** до AJAX endpoint `/ajax/` (сумісно з iOS ITP)
+- **З файлами → iframe** як target форми (AJAX endpoint не підтримує файли)
 
-**Як це працює технічно:**
-```html
-<form target="formsubmit-frame" enctype="multipart/form-data">...</form>
-<iframe name="formsubmit-frame" style="display:none;"></iframe>
-```
-JS встановлює `frame.onload` → коли iframe завантажує відповідь Formsubmit, показуємо success UI. Таймаут 15 сек на випадок мережевої помилки.
+**Проблема iOS Safari:** ITP (Intelligent Tracking Prevention) блокує `iframe.onload` для cross-origin → форма відправлялась, але success UI не з'являвся. Виправлено через fetch для text-only заявок (~99% випадків).
 
 **Підтримка кількох файлів:**
-Formsubmit обробляє лише ОДИН `name="attachment"`. Для кожного додаткового файлу динамічно створюються hidden inputs `attachment2`, `attachment3` тощо через DataTransfer API.
+Formsubmit обробляє лише ОДИН `name="attachment"`. Для кожного додаткового файлу динамічно створюються `attachment2`, `attachment3` тощо через DataTransfer API.
 
 **Поля форми:**
 - `_subject` — динамічний (`[НОВИЙ]` або `[ПОВТОРНИЙ]` + контакт)
@@ -75,15 +69,16 @@ Formsubmit обробляє лише ОДИН `name="attachment"`. Для кож
 - Дані: Статус_клієнта, Email_клієнта, Телефон, Вантаж, Країна, Вартість, Контакт, Деталі
 
 **Розпізнавання повторних клієнтів:**
-- `localStorage.importica_customs_done = '1'` встановлюється після першої успішної відправки
-- При наступному запиті заголовок змінюється на `[ПОВТОРНИЙ] — виставити рахунок $25-40`
+- `localStorage.importica_customs_done = '1'` після першої успішної відправки
+- При наступному запиті заголовок: `[ПОВТОРНИЙ] — виставити рахунок $25-40`
 - Контакти нормалізуються (toLowerCase, без пробілів) перед порівнянням
 
-**Логіка:** успіх (iframe.onload) → success UI + збереження контакту в localStorage | помилка/таймаут → toast + fallback на Telegram
+**Логіка:** fetch/onload успіх → success UI + збереження в localStorage | помилка/таймаут 15с → toast + fallback на Telegram
 
 **Примітки:**
-- EmailJS не використовується — несумісний з Edge Tracking Prevention
-- Web3Forms видалено 21.05.2026 — замінено на Formsubmit (стабільніший, з підтримкою файлів)
+- EmailJS видалено — несумісний з Edge Tracking Prevention
+- Web3Forms видалено 21.05.2026 — замінено на Formsubmit (стабільніший, файли)
+- iOS Safari fix зроблено 27.05.2026 — протестовано end-to-end на iPhone
 
 ---
 
@@ -110,12 +105,38 @@ Formsubmit обробляє лише ОДИН `name="attachment"`. Для кож
 
 ## Google Analytics GA4
 
-**Статус: ❌ не підключено.**
+**Статус: ✅ підключено (27.05.2026)**
 
-В `<head>` index.html є закоментований блок. Щоб підключити:
-1. analytics.google.com → New Property → Web → importica.com.ua
-2. Скопіювати Measurement ID (формат: G-XXXXXXXXXX)
-3. Розкоментувати блок в `<head>` і замінити G-XXXXXXXXXX → commit → push
+- Акаунт: Importica (daniilka4449@gmail.com)
+- Measurement ID: `G-GQBVZQ0LDF`
+- Потік: Importica Website → importica.com.ua
+- Код вставлено в `<head>` index.html (розкоментовано та активовано)
+
+---
+
+## Калькулятор митниці (оновлено 27.05.2026)
+
+**Два режими:**
+1. **Авто** — офіційні ставки митниці України 2025-2026
+2. **Товари** — вартість × % мита + ПДВ 20%
+
+**Формула для авто:**
+- Акциз: бензин ≤3000 куб → €50/1000куб×вік; >3000 куб → €100; дизель ≤3500 → €75; електро → €1/кВт·год (без мита); гібрид → €100 фіксовано
+- Мито: 10% від митної вартості (електро — 0%)
+- ПДВ: 20% від (вартість + мито + акциз)
+- Вік авто: `min(max(поточний рік − рік випуску + 1, 1), 15)`
+
+**Валюта:** EUR (основна) або USD (конвертується через курс ÷1.08 → EUR)
+
+**Формула для товарів:**
+- Мито: вартість × % мита (вводиться вручну)
+- ПДВ: 20% від (вартість + мито)
+- Валюта: EUR або USD (аналогічно)
+
+**Відображення:** окремий breakdown — акциз / мито / ПДВ / разом
+
+**Інвойс (секція оплати) — валюти (оновлено 27.05.2026):**
+USD 🇺🇸 | EUR 🇪🇺 | UAH 🇺🇦 | USDT 💎 (замінено попередній набір з 6 валют, grid 2×2)
 
 ---
 
@@ -200,9 +221,14 @@ Telegram синій: #229ED9
 - [x] **Крапкова dot grid на фоні** (21.05.2026) — premium feel, rgba(232,255,0,0.10), 28px, видалено старий hero square grid
 - [x] **Іконка митниці** (21.05.2026) — `🛃` → `⚖️` скрізь, виправлено "митнею" → "митницею"
 - [x] **Топбар емодзі** (21.05.2026) — 🚗 перевернуто вліво через scaleX(-1)
+- [x] **iOS Safari fix** (27.05.2026) — форма митних ризиків: fetch для text-only, iframe для файлів
+- [x] **Калькулятор митниці** (27.05.2026) — офіційні ставки UA 2025-2026, авто+товари, EUR/USD
+- [x] **Валюти інвойсу** (27.05.2026) — USD/EUR/UAH/USDT, grid 2×2
+- [x] **Google Analytics GA4** (27.05.2026) — G-GQBVZQ0LDF, працює в реальному часі
+- [x] **og:image** (27.05.2026) — og-image.svg 1200×630px, брендований прев'ю для соцмереж
 
 ### Термінові ⚡
-- [ ] **GA4** — зареєструватись на analytics.google.com, вставити Measurement ID
+- [x] **GA4** — підключено 27.05.2026 (G-GQBVZQ0LDF)
 - [ ] **Постійний телефон** — замінити +380502313652 у 3 місцях (topbar, contacts, footer)
 
 ### Середні 📋
@@ -210,8 +236,8 @@ Telegram синій: #229ED9
 - [ ] **Відгуки** — повернути коли є реальні від клієнтів
 
 ### Майбутнє 🔮
+- [x] **og:image** — зроблено 27.05.2026 (og-image.svg, 1200×630px, брендований)
 - [ ] Instagram акаунт → підключити до сайту
-- [ ] og:image (1200×630px) для соцмереж
 - [ ] English версія сайту
 
 ---
@@ -221,6 +247,7 @@ Telegram синій: #229ED9
 ```
 importica/
 ├── index.html       ← ЄДИНИЙ файл сайту (HTML + CSS + JS всередині)
+├── og-image.svg     ← og:image для соцмереж (1200×630px, додано 27.05.2026)
 ├── robots.txt       ← SEO
 ├── sitemap.xml      ← SEO
 ├── CNAME            ← GitHub Pages: importica.com.ua

@@ -131,10 +131,10 @@ importica/
 
 ## Google Analytics GA4
 
-В `<head>` index.html є закоментований блок. Потрібно:
-1. analytics.google.com → створити акаунт → Property → Web → importica.com.ua
-2. Скопіювати Measurement ID (G-XXXXXXXXXX)
-3. Розкоментувати блок в index.html і замінити G-XXXXXXXXXX
+**Статус: ✅ підключено (27.05.2026)**
+- Measurement ID: `G-GQBVZQ0LDF`
+- Акаунт: daniilka4449@gmail.com → Property: Importica → Stream: Importica Website
+- Код активовано в `<head>` index.html
 
 ---
 
@@ -191,7 +191,7 @@ Telegram:  #229ED9
 - [x] **Крапкова сітка фону** — ЗРОБЛЕНО 21.05.2026 (premium dot grid, жовтий 10% opacity, 28px)
 - [x] **Виправлено 🛃 → ⚖️** — ЗРОБЛЕНО 21.05.2026 (у всіх місцях де митниця)
 - [x] **Виправлено "митнею" → "митницею"** — ЗРОБЛЕНО 21.05.2026
-- [ ] **GA4** — зареєструватись, вставити Measurement ID
+- [x] **GA4** — підключено 27.05.2026 (G-GQBVZQ0LDF)
 - [ ] **Постійний телефон** — замінити тимчасовий +380502313652 (3 місця в index.html)
 - [ ] **Секція "Про нас"** — повернути з реальними даними
 - [ ] **Відгуки** — додати реальні (перші клієнти через сайт)
