@@ -41,6 +41,9 @@
 | Search Console | ✅ | Підключено, sitemap відправлено 17.05.2026 |
 | Formsubmit | ✅ | Підключено 21.05.2026 — форма митних ризиків (замінив Web3Forms) |
 | Google Analytics GA4 | ✅ | Підключено 27.05.2026 — Measurement ID: G-GQBVZQ0LDF |
+| Google Sheets (Ліди) | ✅ | "Importica — Ліди" — через Apps Script webhook (27.05.2026) |
+| Apps Script webhook | ✅ | Receives form data, writes to Sheets (daniilka4449@gmail.com) |
+| Make.com бот сценарій | ✅ | 3 шляхи: /start, /help, інше (27.05.2026) |
 
 ---
 
@@ -237,8 +240,45 @@ Telegram синій: #229ED9
 
 ### Майбутнє 🔮
 - [x] **og:image** — зроблено 27.05.2026 (og-image.svg, 1200×630px, брендований)
+- [x] **UTM-трекінг джерела лідів** — 27.05.2026 (detectLeadSource: UTM params + referrer auto-detect)
+- [x] **Google Sheets таблиця лідів** — 27.05.2026 (Apps Script webhook, "Importica — Ліди")
+- [x] **Telegram бот: меню команд** — 27.05.2026 (/start, /help через BotFather)
+- [x] **Make.com /help гілка** — 27.05.2026 (3-й шлях у Router, контакти)
+- [ ] **Make.com → Google Sheets для бота** — додати модуль Google Sheets на Path 2 (заявки з бота теж в таблицю)
 - [ ] Instagram акаунт → підключити до сайту
 - [ ] English версія сайту
+
+---
+
+## 🔄 НА ЗАВТРА (28.05.2026):
+
+**Завдання:** Додати в Make.com сценарії "Інтеграція Telegram-бота" модуль **Google Sheets — Add a Row** на 2-й гілці (де обробляються повідомлення клієнтів від бота, після Bot 4 → Bot 5).
+
+**Що зробити:**
+1. У Make.com → відкрити сценарій
+2. Натиснути "+" після Bot 5 на 2-й гілці
+3. Обрати **Google Sheets → Add a Row**
+4. Вибрати таблицю "Importica — Ліди"
+5. Замапити поля з Telegram trigger:
+   - Дата: `now`
+   - Час: `now`
+   - Вантаж: `—`
+   - Країна: `—`
+   - Вартість: `—`
+   - Email: `—`
+   - Телефон: `—`
+   - Контакт: `@{{Username}}`
+   - Деталі: `{{Message.Text}}`
+   - Джерело: `Telegram бот`
+   - Статус: `Новий`
+6. Save → протестувати
+
+**Інші пункти на майбутнє:**
+- Постійний номер телефону (коли з'явиться менеджер)
+- Реальні дані для "Про нас" (5 років, 100+ доставок)
+- Перші відгуки від клієнтів
+- Instagram акаунт
+- English версія
 
 ---
 
