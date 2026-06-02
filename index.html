@@ -271,20 +271,23 @@ textarea{resize:vertical;min-height:72px;}
 .breakdown-label{color:#666;}
 .breakdown-val{font-weight:600;}
 
-/* Reviews — компактна стрічка з автоскролом */
-.reviews-marquee{position:relative;overflow:hidden;margin:0 -5% 1.5rem;padding:0.5rem 0;mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);}
-.reviews-track{display:flex;gap:1rem;width:max-content;animation:reviewScroll 60s linear infinite;}
-.reviews-marquee:hover .reviews-track{animation-play-state:paused;}
-@keyframes reviewScroll{from{transform:translateX(0);}to{transform:translateX(calc(-50% - 0.5rem));}}
-.review-card{flex:0 0 300px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:0.7rem;transition:border-color 0.2s;}
+/* Reviews — компактна горизонтальна стрічка з керованим скролом */
+.reviews-marquee{position:relative;margin:0 -5% 0.9rem;}
+.reviews-scroller{display:flex;gap:0.7rem;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:0.4rem 5%;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);}
+.reviews-scroller::-webkit-scrollbar{display:none;}
+.review-card{flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s;}
 .review-card:hover{border-color:#e8ff00;}
-.review-head{display:flex;align-items:center;gap:0.7rem;}
-.review-avatar{width:36px;height:36px;border-radius:50%;background:#e8ff00;color:#0d0d0d;font-family:'Unbounded',sans-serif;font-weight:900;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.review-meta{display:flex;flex-direction:column;gap:0.1rem;}
-.review-name{font-size:0.85rem;font-weight:600;color:#f5f5f0;}
-.review-stars{font-size:0.72rem;color:#e8ff00;letter-spacing:0.08em;}
+.review-head{display:flex;align-items:center;gap:0.6rem;}
+.review-avatar{width:32px;height:32px;border-radius:50%;background:#e8ff00;color:#0d0d0d;font-family:'Unbounded',sans-serif;font-weight:900;font-size:0.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.review-meta{display:flex;flex-direction:column;gap:0.05rem;}
+.review-name{font-size:0.78rem;font-weight:600;color:#f5f5f0;}
+.review-stars{font-size:0.66rem;color:#e8ff00;letter-spacing:0.08em;}
 .review-stars .dim{color:#333;}
-.review-text{font-size:0.8rem;line-height:1.5;color:#777;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.review-text{font-size:0.74rem;line-height:1.45;color:#777;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.review-arrow{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;color:#f5f5f0;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;font-size:1.1rem;line-height:1;transition:all 0.2s;font-family:'DM Sans',sans-serif;padding:0;}
+.review-arrow:hover{background:#e8ff00;color:#0d0d0d;border-color:#e8ff00;}
+.review-arrow.left{left:6%;}
+.review-arrow.right{right:6%;}
 .review-cta{display:flex;justify-content:center;margin-top:0.5rem;}
 .review-cta-btn{background:transparent;border:1px solid #2a2a2a;color:#888;font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:0.55rem 1.1rem;border-radius:8px;cursor:pointer;transition:all 0.2s;}
 .review-cta-btn:hover{border-color:#e8ff00;color:#e8ff00;}
@@ -867,8 +870,8 @@ footer .logo{font-size:0.95rem;}
   <h2>Що про нас кажуть</h2>
 
   <div class="reviews-marquee">
-    <div class="reviews-track" id="reviewsTrack">
-      <div class="review-card" data-date="2026-06-15"><div class="review-head"><div class="review-avatar">ТТ</div><div class="review-meta"><div class="review-name">Тест Тестенко, Київ</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">🧪 ТЕСТОВИЙ ВІДГУК — перевіряємо чи з'явиться першим завдяки даті 2026-06-15. Якщо бачиш — все працює!</div></div>
+    <button type="button" class="review-arrow left" onclick="scrollReviews(-1)" aria-label="Назад">‹</button>
+    <div class="reviews-scroller" id="reviewsScroller">
       <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">СК</div><div class="review-meta"><div class="review-name">Сергій, Київ</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Клайпеди в Київ з розмитненням. Доставили швидко, розмитнили без проблем. Раджу звертатись.</div></div>
       <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">АП</div><div class="review-meta"><div class="review-name">Андрій, Львів</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Привіз авто зі США через Importica — все чітко, жодних сюрпризів на митниці. Менеджер завжди на зв'язку, пояснив кожен крок.</div></div>
       <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">ОМ</div><div class="review-meta"><div class="review-name">Олена, Дніпро</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Зверталась щодо оплати інвойсу постачальнику в Кореї. Швидко, без зайвих питань, кошти дійшли вчасно. Буду звертатись ще.</div></div>
@@ -876,6 +879,7 @@ footer .logo{font-size:0.95rem;}
       <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">НВ</div><div class="review-meta"><div class="review-name">Наталія, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Перший раз із міжнародною логістикою. Хлопці все пояснили, супроводжували на кожному етапі. Авто з Литви отримала без проблем.</div></div>
       <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">ДК</div><div class="review-meta"><div class="review-name">Дмитро, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Одеси до Києва. Авто прийшло в ідеальному стані, водій пунктуальний. Рекомендую для внутрішніх перевезень.</div></div>
     </div>
+    <button type="button" class="review-arrow right" onclick="scrollReviews(1)" aria-label="Вперед">›</button>
   </div>
 
   <div class="review-cta">
@@ -996,21 +1000,24 @@ document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
 function toggleFaq(el){const item=el.parentElement;const open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!open)item.classList.add('open');}
 
-// Reviews — auto-sort by date (newest first) + duplicate for seamless scroll
+// Reviews — auto-sort by date (newest first)
 (function(){
-  const track=document.getElementById('reviewsTrack');
-  if(!track)return;
-  const cards=Array.from(track.querySelectorAll('.review-card'));
+  const scroller=document.getElementById('reviewsScroller');
+  if(!scroller)return;
+  const cards=Array.from(scroller.querySelectorAll('.review-card'));
   cards.sort((a,b)=>{
     const da=a.dataset.date||'1970-01-01';
     const db=b.dataset.date||'1970-01-01';
     return db.localeCompare(da); // newest first
   });
-  track.innerHTML='';
-  cards.forEach(c=>track.appendChild(c));
-  // Duplicate for infinite scroll
-  cards.forEach(c=>track.appendChild(c.cloneNode(true)));
+  scroller.innerHTML='';
+  cards.forEach(c=>scroller.appendChild(c));
 })();
+function scrollReviews(dir){
+  const s=document.getElementById('reviewsScroller');
+  if(!s)return;
+  s.scrollBy({left:dir*250,behavior:'smooth'});
+}
 
 // Reviews — toggle form + interactive stars
 function toggleReviewForm(){
