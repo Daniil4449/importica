@@ -276,8 +276,11 @@ textarea{resize:vertical;min-height:72px;}
 .reviews-marquee{position:relative;margin:0 -5% 0.9rem;}
 .reviews-scroller{display:flex;gap:0.7rem;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:0.4rem 5%;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);}
 .reviews-scroller::-webkit-scrollbar{display:none;}
-.review-card{flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s;}
+.review-card{flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s,background 0.2s;cursor:pointer;align-self:flex-start;}
 .review-card:hover{border-color:#e8ff00;}
+.review-card.expanded{background:#202020;border-color:#e8ff00;flex:0 0 280px;}
+.review-card.expanded .review-text{-webkit-line-clamp:unset;display:block;color:#a0a0a0;}
+.review-card.expanded .review-more{color:#e8ff00;}
 .review-head{display:flex;align-items:center;gap:0.6rem;}
 .review-avatar{width:32px;height:32px;border-radius:50%;background:#e8ff00;color:#0d0d0d;font-family:'Unbounded',sans-serif;font-weight:900;font-size:0.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .review-meta{display:flex;flex-direction:column;gap:0.05rem;}
@@ -285,6 +288,7 @@ textarea{resize:vertical;min-height:72px;}
 .review-stars{font-size:0.66rem;color:#e8ff00;letter-spacing:0.08em;}
 .review-stars .dim{color:#333;}
 .review-text{font-size:0.74rem;line-height:1.45;color:#777;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.review-more{font-size:0.7rem;color:#555;margin-top:auto;padding-top:0.3rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
 .review-arrow{width:36px;height:36px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;color:#f5f5f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem;line-height:1;transition:all 0.2s;font-family:'DM Sans',sans-serif;padding:0;}
 .review-arrow:hover{background:#e8ff00;color:#0d0d0d;border-color:#e8ff00;transform:scale(1.05);}
 .review-arrow:active{transform:scale(0.95);}
@@ -1002,7 +1006,7 @@ document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
 function toggleFaq(el){const item=el.parentElement;const open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!open)item.classList.add('open');}
 
-// Reviews — auto-sort by date (newest first) + mouse wheel horizontal scroll
+// Reviews — auto-sort by date (newest first) + expandable cards + mouse wheel scroll
 (function(){
   const scroller=document.getElementById('reviewsScroller');
   if(!scroller)return;
@@ -1014,9 +1018,33 @@ function toggleFaq(el){const item=el.parentElement;const open=item.classList.con
   });
   scroller.innerHTML='';
   cards.forEach(c=>scroller.appendChild(c));
-  // Mouse wheel → horizontal scroll (desktop only, не на тач-пристроях)
+
+  // Додаємо "читати далі" для карток де текст обрізаний
+  setTimeout(function(){
+    cards.forEach(card=>{
+      const txt=card.querySelector('.review-text');
+      if(!txt)return;
+      if(txt.scrollHeight>txt.clientHeight+2){
+        const more=document.createElement('div');
+        more.className='review-more';
+        more.textContent='Читати далі →';
+        card.appendChild(more);
+        card._more=more;
+      }
+    });
+  },50);
+
+  // Клік на картку → розгорнути/згорнути
+  cards.forEach(card=>{
+    card.addEventListener('click',function(){
+      const opened=card.classList.toggle('expanded');
+      if(card._more)card._more.textContent=opened?'Згорнути ↑':'Читати далі →';
+    });
+  });
+
+  // Mouse wheel → horizontal scroll (desktop only)
   scroller.addEventListener('wheel',function(e){
-    if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return; // вже горизонтальний — не чіпаємо
+    if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
     e.preventDefault();
     scroller.scrollBy({left:e.deltaY,behavior:'auto'});
   },{passive:false});
