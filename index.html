@@ -849,34 +849,31 @@ footer .logo{font-size:0.95rem;}
 
 <!-- REVIEWS
 =========================================================================
-  МОДЕРАЦІЯ ВІДГУКІВ:
+  МОДЕРАЦІЯ ВІДГУКІВ — як додати новий відгук:
+
   1. Клієнт відправляє форму → email на info@importica.com.ua
   2. Danylo читає, схвалює
-  3. Додає новий відгук у <div class="reviews-track"> нижче — копіює structure
-     одного <div class="review-card">...</div> і вставляє ДВА РАЗИ
-     (один блок у першу половину треку, другий у дублікат — для безшовного скролу)
-  4. git commit + push → відгук з'являється на сайті
+  3. Додає ОДИН блок <div class="review-card" data-date="YYYY-MM-DD"> у <div class="reviews-track">
+     (де data-date — дата отримання відгуку, формат: рік-місяць-день)
+  4. JS автоматично:
+     - Відсортує всі картки по даті (найновіші зліва)
+     - Продублює стрічку для безшовного скролу
+  5. git commit + push → відгук на сайті
+
+  ⚠️ Не дублюйте картки вручну — JS це робить сам!
 ========================================================================= -->
 <section class="fade-up" id="reviews" style="padding-top:0;">
   <div class="section-label">Відгуки клієнтів</div>
   <h2>Що про нас кажуть</h2>
 
   <div class="reviews-marquee">
-    <div class="reviews-track">
-      <!-- Оригінальний набір карток -->
-      <div class="review-card"><div class="review-head"><div class="review-avatar">СК</div><div class="review-meta"><div class="review-name">Сергій, Київ</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Клайпеди в Київ з розмитненням. Доставили швидко, розмитнили без проблем. Раджу звертатись.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">АП</div><div class="review-meta"><div class="review-name">Андрій, Львів</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Привіз авто зі США через Importica — все чітко, жодних сюрпризів на митниці. Менеджер завжди на зв'язку, пояснив кожен крок.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">ОМ</div><div class="review-meta"><div class="review-name">Олена, Дніпро</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Зверталась щодо оплати інвойсу постачальнику в Кореї. Швидко, без зайвих питань, кошти дійшли вчасно. Буду звертатись ще.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">МС</div><div class="review-meta"><div class="review-name">Максим, Харків</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Доставляли вантаж з Китаю, консолідація + розмитнення. Importica взяли все на себе, я тільки отримав товар. Рекомендую.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">НВ</div><div class="review-meta"><div class="review-name">Наталія, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Перший раз із міжнародною логістикою. Хлопці все пояснили, супроводжували на кожному етапі. Авто з Литви отримала без проблем.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">ДК</div><div class="review-meta"><div class="review-name">Дмитро, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Одеси до Києва. Авто прийшло в ідеальному стані, водій пунктуальний. Рекомендую для внутрішніх перевезень.</div></div>
-      <!-- ДУБЛІКАТ для безшовного циклічного скролу -->
-      <div class="review-card"><div class="review-head"><div class="review-avatar">СК</div><div class="review-meta"><div class="review-name">Сергій, Київ</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Клайпеди в Київ з розмитненням. Доставили швидко, розмитнили без проблем. Раджу звертатись.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">АП</div><div class="review-meta"><div class="review-name">Андрій, Львів</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Привіз авто зі США через Importica — все чітко, жодних сюрпризів на митниці. Менеджер завжди на зв'язку, пояснив кожен крок.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">ОМ</div><div class="review-meta"><div class="review-name">Олена, Дніпро</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Зверталась щодо оплати інвойсу постачальнику в Кореї. Швидко, без зайвих питань, кошти дійшли вчасно. Буду звертатись ще.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">МС</div><div class="review-meta"><div class="review-name">Максим, Харків</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Доставляли вантаж з Китаю, консолідація + розмитнення. Importica взяли все на себе, я тільки отримав товар. Рекомендую.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">НВ</div><div class="review-meta"><div class="review-name">Наталія, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Перший раз із міжнародною логістикою. Хлопці все пояснили, супроводжували на кожному етапі. Авто з Литви отримала без проблем.</div></div>
-      <div class="review-card"><div class="review-head"><div class="review-avatar">ДК</div><div class="review-meta"><div class="review-name">Дмитро, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Одеси до Києва. Авто прийшло в ідеальному стані, водій пунктуальний. Рекомендую для внутрішніх перевезень.</div></div>
+    <div class="reviews-track" id="reviewsTrack">
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">СК</div><div class="review-meta"><div class="review-name">Сергій, Київ</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Клайпеди в Київ з розмитненням. Доставили швидко, розмитнили без проблем. Раджу звертатись.</div></div>
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">АП</div><div class="review-meta"><div class="review-name">Андрій, Львів</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Привіз авто зі США через Importica — все чітко, жодних сюрпризів на митниці. Менеджер завжди на зв'язку, пояснив кожен крок.</div></div>
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">ОМ</div><div class="review-meta"><div class="review-name">Олена, Дніпро</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Зверталась щодо оплати інвойсу постачальнику в Кореї. Швидко, без зайвих питань, кошти дійшли вчасно. Буду звертатись ще.</div></div>
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">МС</div><div class="review-meta"><div class="review-name">Максим, Харків</div><div class="review-stars">★★★★<span class="dim">★</span></div></div></div><div class="review-text">Доставляли вантаж з Китаю, консолідація + розмитнення. Importica взяли все на себе, я тільки отримав товар. Рекомендую.</div></div>
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">НВ</div><div class="review-meta"><div class="review-name">Наталія, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Перший раз із міжнародною логістикою. Хлопці все пояснили, супроводжували на кожному етапі. Авто з Литви отримала без проблем.</div></div>
+      <div class="review-card" data-date="2026-06-02"><div class="review-head"><div class="review-avatar">ДК</div><div class="review-meta"><div class="review-name">Дмитро, Одеса</div><div class="review-stars">★★★★★</div></div></div><div class="review-text">Замовляв доставку авто з Одеси до Києва. Авто прийшло в ідеальному стані, водій пунктуальний. Рекомендую для внутрішніх перевезень.</div></div>
     </div>
   </div>
 
@@ -997,6 +994,22 @@ const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.ta
 document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
 function toggleFaq(el){const item=el.parentElement;const open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!open)item.classList.add('open');}
+
+// Reviews — auto-sort by date (newest first) + duplicate for seamless scroll
+(function(){
+  const track=document.getElementById('reviewsTrack');
+  if(!track)return;
+  const cards=Array.from(track.querySelectorAll('.review-card'));
+  cards.sort((a,b)=>{
+    const da=a.dataset.date||'1970-01-01';
+    const db=b.dataset.date||'1970-01-01';
+    return db.localeCompare(da); // newest first
+  });
+  track.innerHTML='';
+  cards.forEach(c=>track.appendChild(c));
+  // Duplicate for infinite scroll
+  cards.forEach(c=>track.appendChild(c.cloneNode(true)));
+})();
 
 // Reviews — toggle form + interactive stars
 function toggleReviewForm(){
