@@ -278,11 +278,14 @@ textarea{resize:vertical;min-height:72px;}
 .reviews-scroller::-webkit-scrollbar{display:none;}
 .reviews-marquee.can-scroll-right::after{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(to left,#0d0d0d,transparent);pointer-events:none;z-index:2;}
 .reviews-marquee.can-scroll-left::before{content:'';position:absolute;top:0;left:0;width:60px;height:100%;background:linear-gradient(to right,#0d0d0d,transparent);pointer-events:none;z-index:2;}
-.review-card{flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s,background 0.2s;cursor:pointer;align-self:flex-start;}
+.review-card{position:relative;flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s,background 0.2s;cursor:pointer;align-self:flex-start;}
 .review-card:hover{border-color:#e8ff00;}
-.review-card.expanded{background:#202020;border-color:#e8ff00;flex:0 0 280px;}
+.review-card.expanded{background:#202020;border-color:#e8ff00;flex:0 0 280px;cursor:default;}
 .review-card.expanded .review-text{-webkit-line-clamp:unset;display:block;color:#a0a0a0;}
 .review-card.expanded .review-more{color:#e8ff00;}
+.review-close{position:absolute;top:0.5rem;right:0.5rem;width:26px;height:26px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:50%;color:#888;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:0.85rem;line-height:1;transition:all 0.15s;padding:0;font-family:'DM Sans',sans-serif;z-index:3;}
+.review-card.expanded .review-close{display:flex;}
+.review-close:hover{background:#e8ff00;color:#0d0d0d;border-color:#e8ff00;transform:rotate(90deg);}
 .review-head{display:flex;align-items:center;gap:0.6rem;}
 .review-avatar{width:32px;height:32px;border-radius:50%;background:#e8ff00;color:#0d0d0d;font-family:'Unbounded',sans-serif;font-weight:900;font-size:0.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .review-meta{display:flex;flex-direction:column;gap:0.05rem;}
@@ -1081,12 +1084,52 @@ function toggleFaq(el){const item=el.parentElement;const open=item.classList.con
     });
   },50);
 
-  // Клік на картку → розгорнути/згорнути
+  // Додаємо кнопку ✕ закриття на кожну картку
+  let _openCard=null;
+  function closeExpanded(){
+    if(!_openCard)return;
+    _openCard.classList.remove('expanded');
+    if(_openCard._more)_openCard._more.textContent='Читати далі →';
+    _openCard=null;
+  }
+  function openCard(card){
+    if(_openCard&&_openCard!==card)closeExpanded();
+    card.classList.add('expanded');
+    if(card._more)card._more.textContent='Згорнути ↑';
+    _openCard=card;
+  }
   cards.forEach(card=>{
-    card.addEventListener('click',function(){
-      const opened=card.classList.toggle('expanded');
-      if(card._more)card._more.textContent=opened?'Згорнути ↑':'Читати далі →';
+    // ✕ кнопка
+    const closeBtn=document.createElement('button');
+    closeBtn.type='button';
+    closeBtn.className='review-close';
+    closeBtn.setAttribute('aria-label','Закрити');
+    closeBtn.textContent='✕';
+    closeBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      closeExpanded();
     });
+    card.appendChild(closeBtn);
+    // Клік на картку
+    card.addEventListener('click',function(e){
+      // Не реагуємо якщо клік на ✕ або на тексті розкритої картки (щоб можна було виділяти)
+      if(e.target.classList.contains('review-close'))return;
+      if(card.classList.contains('expanded')){
+        // Закриваємо тільки якщо клікнули на "Згорнути ↑"
+        if(e.target.classList.contains('review-more'))closeExpanded();
+        return;
+      }
+      openCard(card);
+    });
+  });
+  // ESC закриває
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')closeExpanded();
+  });
+  // Клік поза будь-якою карткою закриває
+  document.addEventListener('click',function(e){
+    if(!_openCard)return;
+    if(!e.target.closest('.review-card'))closeExpanded();
   });
 
   // Mouse wheel → horizontal scroll (desktop only)
