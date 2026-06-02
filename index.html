@@ -271,11 +271,13 @@ textarea{resize:vertical;min-height:72px;}
 .breakdown-label{color:#666;}
 .breakdown-val{font-weight:600;}
 
-/* Reviews — компактна горизонтальна стрічка з керованим скролом */
+/* Reviews — компактна горизонтальна стрічка в межах секції */
 .reviews-controls{display:flex;justify-content:flex-end;gap:0.5rem;margin-bottom:0.7rem;}
-.reviews-marquee{position:relative;margin:0 -5% 0.9rem;}
-.reviews-scroller{display:flex;gap:0.7rem;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:0.4rem 5%;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);}
+.reviews-marquee{position:relative;margin:0 0 0.9rem;overflow:hidden;}
+.reviews-scroller{display:flex;gap:0.7rem;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:0.4rem 0;scrollbar-width:none;-ms-overflow-style:none;}
 .reviews-scroller::-webkit-scrollbar{display:none;}
+.reviews-marquee.can-scroll-right::after{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(to left,#0d0d0d,transparent);pointer-events:none;z-index:2;}
+.reviews-marquee.can-scroll-left::before{content:'';position:absolute;top:0;left:0;width:60px;height:100%;background:linear-gradient(to right,#0d0d0d,transparent);pointer-events:none;z-index:2;}
 .review-card{flex:0 0 230px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:0.85rem 0.95rem;display:flex;flex-direction:column;gap:0.5rem;scroll-snap-align:start;transition:border-color 0.2s,background 0.2s;cursor:pointer;align-self:flex-start;}
 .review-card:hover{border-color:#e8ff00;}
 .review-card.expanded{background:#202020;border-color:#e8ff00;flex:0 0 280px;}
@@ -294,8 +296,9 @@ textarea{resize:vertical;min-height:72px;}
 .review-text{font-size:0.74rem;line-height:1.45;color:#777;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .review-more{font-size:0.7rem;color:#555;margin-top:auto;padding-top:0.3rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
 .review-arrow{width:36px;height:36px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;color:#f5f5f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem;line-height:1;transition:all 0.2s;font-family:'DM Sans',sans-serif;padding:0;}
-.review-arrow:hover{background:#e8ff00;color:#0d0d0d;border-color:#e8ff00;transform:scale(1.05);}
-.review-arrow:active{transform:scale(0.95);}
+.review-arrow:hover:not(:disabled){background:#e8ff00;color:#0d0d0d;border-color:#e8ff00;transform:scale(1.05);}
+.review-arrow:active:not(:disabled){transform:scale(0.95);}
+.review-arrow:disabled{opacity:0.3;cursor:not-allowed;}
 .review-cta{display:flex;justify-content:center;margin-top:0.5rem;}
 .review-cta-btn{background:transparent;border:1px solid #2a2a2a;color:#888;font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:0.55rem 1.1rem;border-radius:8px;cursor:pointer;transition:all 0.2s;}
 .review-cta-btn:hover{border-color:#e8ff00;color:#e8ff00;}
@@ -1092,6 +1095,21 @@ function toggleFaq(el){const item=el.parentElement;const open=item.classList.con
     e.preventDefault();
     scroller.scrollBy({left:e.deltaY,behavior:'auto'});
   },{passive:false});
+
+  // Оновлення стрілок та градієнтів-fade залежно від позиції скролу
+  const marquee=scroller.parentElement;
+  const arrows=document.querySelectorAll('.reviews-controls .review-arrow');
+  function updateState(){
+    const canLeft=scroller.scrollLeft>5;
+    const canRight=scroller.scrollLeft<scroller.scrollWidth-scroller.clientWidth-5;
+    marquee.classList.toggle('can-scroll-left',canLeft);
+    marquee.classList.toggle('can-scroll-right',canRight);
+    if(arrows[0])arrows[0].disabled=!canLeft;
+    if(arrows[1])arrows[1].disabled=!canRight;
+  }
+  scroller.addEventListener('scroll',updateState);
+  window.addEventListener('resize',updateState);
+  setTimeout(updateState,100);
 })();
 function scrollReviews(dir){
   const s=document.getElementById('reviewsScroller');
