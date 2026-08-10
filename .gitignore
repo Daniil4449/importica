@@ -1,0 +1,33 @@
+# === Secrets & credentials ===
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets.json
+credentials.json
+config.local.*
+
+# === Claude Code local files ===
+.claude/settings.local.json
+.claude/*.local.*
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === IDE files ===
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# === Node / build artifacts (на майбутнє, якщо будуть) ===
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
