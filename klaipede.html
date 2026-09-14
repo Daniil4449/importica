@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18413750926"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18413750926');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Доставка авто з Клайпеди в Україну від $850 — Importica</title>
@@ -219,6 +227,9 @@ function submitLead(){
     document.getElementById('leadFormWrap').innerHTML=successHtml;
     try{
       gtag('event','generate_lead',{'source':'klaipede-ad'});
+    }catch(e){}
+    try{
+      gtag('event', 'conversion', {'send_to': 'AW-18413750926/u2dMCNT9rfccEI6VrsxE'});
     }catch(e){}
     try{
       fetch('https://script.google.com/macros/s/AKfycbyosLZwguJ319pOKBigD7xXS5e5f7-c21z6o8zU2bWvuQKdqZmD8Qg9w9V_zxkPaPtq6g/exec',{
