@@ -276,5 +276,19 @@ function submitLead(){
 }
 </script>
 
+<script>
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a[href]');
+  if (!a) return;
+  var h = a.getAttribute('href') || '';
+  if (/t\.me\/|wa\.me\/|^viber:|^tel:/i.test(h) && typeof gtag === 'function') {
+    gtag('event', 'conversion', {
+      'send_to': 'AW-18413750926/gM_DCPmakLwdEI6VrsxE',
+      'transport_type': 'beacon'
+    });
+  }
+});
+</script>
+
 </body>
 </html>
